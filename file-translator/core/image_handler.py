@@ -4,10 +4,35 @@ Translates text in images using OCR (Tesseract) and overlays translated text.
 Supports: PNG, JPG, JPEG, BMP, TIFF, WEBP
 """
 
+import os
+import platform
+import shutil
 from PIL import Image, ImageDraw, ImageFont
 from core.utils import find_system_font, wrap_text_for_box, is_translatable
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+
+# ─── Smart Tesseract Path Detection ────────────────────────────────
+def _configure_tesseract():
+    """
+    Auto-detect Tesseract executable path.
+    - Windows (local): uses default install path if it exists
+    - Linux (Streamlit Cloud): finds tesseract from system PATH
+    """
+    if platform.system() == "Windows":
+        windows_path = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+        if os.path.exists(windows_path):
+            pytesseract.pytesseract.tesseract_cmd = windows_path
+    else:
+        # Linux / Mac — locate tesseract installed via packages.txt
+        tesseract_path = shutil.which("tesseract")
+        if tesseract_path:
+            pytesseract.pytesseract.tesseract_cmd = tesseract_path
+
+
+# Configure once when this module is imported
+_configure_tesseract()
+
 
 class ImageHandler:
     """Handles translation of image files with text (OCR)."""
@@ -52,6 +77,12 @@ class ImageHandler:
         try:
             ocr_data = pytesseract.image_to_data(
                 img, output_type=pytesseract.Output.DICT
+            )
+        except pytesseract.TesseractNotFoundError:
+            raise RuntimeError(
+                "Tesseract OCR is not installed or not found in PATH. "
+                "On Streamlit Cloud, add a 'packages.txt' file with 'tesseract-ocr'. "
+                "On Windows, install from: https://github.com/UB-Mannheim/tesseract/wiki"
             )
         except Exception as e:
             raise RuntimeError(f"OCR failed: {e}. Make sure Tesseract OCR is installed.")
