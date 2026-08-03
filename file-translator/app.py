@@ -15,10 +15,9 @@ from core.handlers import get_handler
 # ─── Page Configuration ────────────────────────────────────────────
 st.set_page_config(
     page_title="Universal File Translator",
-    page_icon="🌍",
+    page_icon="🌐",
     layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={'About': "Universal File Translator v2.0"}
+    initial_sidebar_state="expanded"
 )
 
 # ─── Language Mapping ──────────────────────────────────────────────
@@ -68,6 +67,7 @@ FILE_TYPE_ICONS = {
     '.html': '🌐', '.htm': '🌐',
 }
 
+
 def format_file_size(size_bytes):
     """Convert bytes to human-readable format."""
     for unit in ['B', 'KB', 'MB', 'GB']:
@@ -77,87 +77,163 @@ def format_file_size(size_bytes):
     return f"{size_bytes:.1f} TB"
 
 
-def main():
-    # ====================== MODERN COOL CSS ======================
+def load_css():
+    """Inject custom CSS for a modern, polished look."""
     st.markdown("""
     <style>
-        .stApp {
-            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-            color: #e0e0ff;
-        }
-        .main-header {
-            font-size: 3.5rem;
-            font-weight: 800;
-            background: linear-gradient(90deg, #00ffea, #7b68ff, #ff00cc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin-bottom: 0.3rem;
-            text-shadow: 0 0 30px rgba(123, 104, 255, 0.5);
-        }
-        .sub-header {
-            text-align: center;
-            color: #b0b0ff;
-            font-size: 1.35rem;
-            margin-bottom: 2rem;
-            opacity: 0.85;
-        }
-        .stFileUploader > div {
-            border: 3px dashed #00ffea;
-            border-radius: 20px;
-            padding: 35px 20px;
-            background: rgba(0, 255, 234, 0.06);
-            transition: all 0.4s ease;
-        }
-        .stFileUploader > div:hover {
-            border-color: #7b68ff;
-            background: rgba(123, 104, 255, 0.1);
-            transform: translateY(-5px);
-        }
-        div.stButton > button {
-            background: linear-gradient(90deg, #00ffea, #7b68ff);
-            color: black;
-            font-weight: 700;
-            border-radius: 16px;
-            height: 3.2em;
-            font-size: 1.1rem;
-            box-shadow: 0 8px 20px rgba(0, 255, 234, 0.3);
-            transition: all 0.3s ease;
-        }
-        div.stButton > button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 12px 25px rgba(123, 104, 255, 0.4);
-        }
-        .success-box {
-            background: linear-gradient(90deg, #00ffea20, #7b68ff20);
-            border-left: 6px solid #00ffea;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 15px 0;
-        }
-        .metric-card {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 12px;
-            border: 1px solid rgba(123, 104, 255, 0.2);
-        }
-        .stProgress > div > div > div {
-            background: linear-gradient(90deg, #00ffea, #7b68ff);
-        }
-        .sidebar .css-1d391kg {
-            background: rgba(26, 26, 46, 0.95);
-        }
+    /* Import Google Font */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Animated gradient background */
+    .stApp {
+        background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Main title gradient text */
+    h1 {
+        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800 !important;
+        font-size: 3rem !important;
+        text-align: center;
+    }
+
+    /* Subtitle text */
+    .subtitle {
+        text-align: center;
+        color: #b0b0d0;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Glassmorphism cards for st.info */
+    div[data-testid="stAlert"] {
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(123, 47, 247, 0.3) !important;
+        border-radius: 16px !important;
+        backdrop-filter: blur(10px);
+        color: #e0e0f0 !important;
+    }
+
+    /* Primary buttons */
+    div.stButton > button:first-child {
+        background: linear-gradient(90deg, #7b2ff7, #00d4ff);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+    }
+
+    /* Download button */
+    .stDownloadButton > button {
+        background: linear-gradient(90deg, #11998e, #38ef7d) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 14px !important;
+        font-weight: 600 !important;
+        padding: 0.7rem 1.5rem !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4) !important;
+    }
+    .stDownloadButton > button:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6) !important;
+    }
+
+    /* File uploader dropzone */
+    [data-testid="stFileUploaderDropzone"] {
+        background: rgba(255, 255, 255, 0.04);
+        border: 2px dashed #7b2ff7;
+        border-radius: 18px;
+        padding: 25px;
+        transition: all 0.3s ease;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: #00d4ff;
+        background: rgba(123, 47, 247, 0.08);
+    }
+
+    /* Sidebar styling */
+    section[data-testid="stSidebar"] {
+        background: rgba(15, 12, 41, 0.6);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid rgba(123, 47, 247, 0.2);
+    }
+
+    /* Selectboxes */
+    div[data-baseweb="select"] > div {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(123, 47, 247, 0.3);
+    }
+
+    /* Metric cards */
+    div[data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 16px;
+        padding: 16px;
+        backdrop-filter: blur(8px);
+    }
+
+    /* Progress bar */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, #7b2ff7, #00d4ff);
+    }
+
+    /* Divider */
+    hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #7b2ff7, transparent);
+    }
+
+    /* Text color fix */
+    p, li, label, .stMarkdown {
+        color: #d0d0e8;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-    # ====================== COOL HEADER ======================
-    st.markdown('<h1 class="main-header">🌐 Universal File Translator</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="sub-header">Translate documents, images, subtitles &amp; more — instantly, in the same format</p>', unsafe_allow_html=True)
+
+def main():
+    # ─── Load Custom Styling ───────────────────────────────────────
+    load_css()
+
+    # ─── Header ────────────────────────────────────────────────────
+    st.markdown("<h1>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
+    st.markdown(
+        "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
+        "translate it into your preferred language and download it <b>in the exact same format</b>.</p>",
+        unsafe_allow_html=True
+    )
     st.divider()
 
     # ─── Sidebar Settings ──────────────────────────────────────────
     with st.sidebar:
-        st.header("⚙️ Translation Settings")
+        st.markdown("## ⚙️ Translation Settings")
+
         target_lang_name = st.selectbox(
             "🎯 Target Language",
             [k for k in LANGUAGES.keys() if k != 'Auto Detect'],
@@ -184,21 +260,24 @@ def main():
         st.markdown("---")
         st.markdown("### 📂 Supported Formats")
         format_groups = {
-            "Documents": [".docx", ".pdf", ".txt", ".rtf", ".md"],
-            "Spreadsheets": [".xlsx", ".xls", ".csv"],
-            "Presentations": [".pptx"],
-            "Images (OCR)": [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"],
-            "Subtitles": [".srt", ".vtt"],
-            "Data / Web": [".json", ".xml", ".html"],
+            "📄 Documents": [".docx", ".pdf", ".txt", ".rtf", ".md"],
+            "📊 Spreadsheets": [".xlsx", ".xls", ".csv"],
+            "📑 Presentations": [".pptx"],
+            "🖼️ Images (OCR)": [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"],
+            "🎬 Subtitles": [".srt", ".vtt"],
+            "🔧 Data / Web": [".json", ".xml", ".html"],
         }
         for group, exts in format_groups.items():
-            st.markdown(f"**{group}**: {', '.join(exts)}")
+            st.markdown(f"**{group}**  \n<small style='color:#9090b0;'>{', '.join(exts)}</small>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown(
-            "<small>⚡ Powered by deep-translator, PyMuPDF, python-docx & more</small>",
+            "<small>⚡ Powered by <a href='https://github.com/nidhaloff/deep-translator'>deep-translator</a>, "
+            "<a href='https://pymupdf.readthedocs.io/'>PyMuPDF</a>, "
+            "<a href='https://python-docx.readthedocs.io/'>python-docx</a>, and more.</small>",
             unsafe_allow_html=True
         )
+        st.markdown("<br><center><small>Made with ❤️ using Streamlit</small></center>", unsafe_allow_html=True)
 
     # ─── File Upload ───────────────────────────────────────────────
     uploaded_file = st.file_uploader(
@@ -210,10 +289,13 @@ def main():
     if uploaded_file is not None:
         file_ext = Path(uploaded_file.name).suffix.lower()
 
+        # Validate extension
         if file_ext not in SUPPORTED_EXTENSIONS:
             st.error(f"❌ Unsupported file format: `{file_ext}`")
             st.info(f"✅ Supported formats: {', '.join(SUPPORTED_EXTENSIONS)}")
             return
+
+        st.toast(f"'{uploaded_file.name}' uploaded successfully! 🎉")
 
         # ─── File Info Display ─────────────────────────────────────
         icon = FILE_TYPE_ICONS.get(file_ext, '📁')
@@ -227,6 +309,7 @@ def main():
 
         # ─── Translate Button ──────────────────────────────────────
         if st.button("🚀 Translate Now", type="primary", use_container_width=True):
+            # Initialize translator
             engine_type = 'google' if 'Google' in engine_choice else 'mymemory'
 
             try:
@@ -239,6 +322,7 @@ def main():
                 st.error(f"Failed to initialize translator: {e}")
                 return
 
+            # Save uploaded file to temp location
             with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_input:
                 tmp_input.write(uploaded_file.getvalue())
                 input_path = tmp_input.name
@@ -246,11 +330,13 @@ def main():
             output_path = input_path.replace(file_ext, f"_translated{file_ext}")
 
             try:
+                # Get handler
                 handler = get_handler(file_ext)
                 if handler is None:
                     st.error(f"No handler available for `{file_ext}` files.")
                     return
 
+                # Progress tracking
                 progress_bar = st.progress(0, text="Starting translation...")
                 status_text = st.empty()
 
@@ -260,24 +346,29 @@ def main():
 
                 start_time = time.time()
 
-                handler.translate(
-                    input_path=input_path,
-                    output_path=output_path,
-                    translator=translator,
-                    progress_callback=update_progress
-                )
+                with st.spinner("🔄 Translating your file... please wait"):
+                    # Perform translation
+                    handler.translate(
+                        input_path=input_path,
+                        output_path=output_path,
+                        translator=translator,
+                        progress_callback=update_progress
+                    )
 
                 elapsed = time.time() - start_time
+
                 progress_bar.progress(100)
                 status_text.text(f"✅ Translation completed in {elapsed:.1f}s!")
 
+                # Read translated file
                 with open(output_path, 'rb') as f:
                     translated_data = f.read()
 
                 output_filename = f"{Path(uploaded_file.name).stem}_{target_lang}{file_ext}"
 
+                st.balloons()
                 st.markdown("---")
-                st.markdown('<div class="success-box"><h3>🎉 Translation Complete!</h3></div>', unsafe_allow_html=True)
+                st.markdown("### 🎉 Translation Complete!")
 
                 col_dl1, col_dl2 = st.columns(2)
                 with col_dl1:
@@ -286,14 +377,18 @@ def main():
                     st.metric("Translated Size", format_file_size(len(translated_data)))
 
                 st.download_button(
-                    label=f"📥 Download Translated — {output_filename}",
+                    label=f"📥 Download Translated File — {output_filename}",
                     data=translated_data,
                     file_name=output_filename,
                     mime="application/octet-stream",
                     use_container_width=True
                 )
 
-                st.caption(f"⏱️ Took {elapsed:.1f} seconds • Engine: {engine_choice} • Target: {target_lang_name}")
+                st.caption(
+                    f"⏱️ Time: {elapsed:.1f}s | "
+                    f"Engine: {engine_choice} | "
+                    f"Target: {target_lang_name}"
+                )
 
             except Exception as e:
                 st.error(f"❌ Translation failed: {str(e)}")
@@ -301,6 +396,7 @@ def main():
                     st.exception(e)
 
             finally:
+                # Cleanup temp files
                 for path in [input_path, output_path]:
                     try:
                         if os.path.exists(path):
