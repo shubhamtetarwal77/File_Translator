@@ -4,40 +4,24 @@ Translates text in images using OCR (Tesseract) and overlays translated text.
 Supports: PNG, JPG, JPEG, BMP, TIFF, WEBP
 """
 
-import os
 import platform
-import shutil
 from PIL import Image, ImageDraw, ImageFont
+
 from core.utils import find_system_font, wrap_text_for_box, is_translatable
 import pytesseract
 
-
-# ─── Smart Tesseract Path Detection ────────────────────────────────
-def _configure_tesseract():
-    """
-    Auto-detect Tesseract executable path.
-    - Windows (local): uses default install path if it exists
-    - Linux (Streamlit Cloud): finds tesseract from system PATH
-    """
-    if platform.system() == "Windows":
-        windows_path = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-        if os.path.exists(windows_path):
-            pytesseract.pytesseract.tesseract_cmd = windows_path
-    else:
-        # Linux / Mac — locate tesseract installed via packages.txt
-        tesseract_path = shutil.which("tesseract")
-        if tesseract_path:
-            pytesseract.pytesseract.tesseract_cmd = tesseract_path
-
-
-# Configure once when this module is imported
-_configure_tesseract()
+# Dynamic Tesseract path for Windows and Linux (Streamlit Cloud)
+if platform.system() == "Windows":
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+else:
+    # For Linux / Streamlit Cloud
+    pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
 
 
 class ImageHandler:
     """Handles translation of image files with text (OCR)."""
 
-    def translate(self, input_path, output_path, translator, progress_callback=None):
+    def translate(self, input_path, output_path, translator, progress_callback=None, ocr_lang=None):
         """
         Translate text in an image:
         1. OCR to detect text and positions
@@ -45,13 +29,15 @@ class ImageHandler:
         3. Overlay translated text
         4. Save the modified image
         """
+        if ocr_lang is None:
+            ocr_lang = 'eng'   # Default to English if no language selected
+
         try:
             import pytesseract
         except ImportError:
             raise ImportError(
                 "pytesseract is required for image translation. "
-                "Install it: pip install pytesseract. "
-                "Also install Tesseract OCR: https://github.com/tesseract-ocr/tesseract"
+                "Install it: pip install pytesseract"
             )
 
         if progress_callback:
@@ -60,9 +46,8 @@ class ImageHandler:
         # Open image
         img = Image.open(input_path)
 
-        # Convert to RGB if necessary (for PNG with transparency, etc.)
+        # Convert to RGB if necessary
         if img.mode != 'RGB':
-            # Create white background
             background = Image.new('RGB', img.size, (255, 255, 255))
             if img.mode == 'RGBA':
                 background.paste(img, mask=img.split()[3])
@@ -71,21 +56,21 @@ class ImageHandler:
             img = background
 
         if progress_callback:
-            progress_callback(0.2, "Running OCR to detect text...")
+            progress_callback(0.2, f"Running OCR (language: {ocr_lang})...")
 
-        # Run OCR with position data
+        # Run OCR with position data + selected language
         try:
             ocr_data = pytesseract.image_to_data(
-                img, output_type=pytesseract.Output.DICT
-            )
-        except pytesseract.TesseractNotFoundError:
-            raise RuntimeError(
-                "Tesseract OCR is not installed or not found in PATH. "
-                "On Streamlit Cloud, add a 'packages.txt' file with 'tesseract-ocr'. "
-                "On Windows, install from: https://github.com/UB-Mannheim/tesseract/wiki"
+                img,
+                lang=ocr_lang,
+                output_type=pytesseract.Output.DICT
             )
         except Exception as e:
-            raise RuntimeError(f"OCR failed: {e}. Make sure Tesseract OCR is installed.")
+            raise RuntimeError(
+                f"OCR failed: {e}\n\n"
+                "Make sure Tesseract OCR is installed. "
+                "On Streamlit Cloud, add 'tesseract-ocr' in packages.txt"
+            )
 
         if progress_callback:
             progress_callback(0.4, "Translating detected text...")
@@ -94,7 +79,6 @@ class ImageHandler:
         text_blocks = self._group_ocr_words(ocr_data)
 
         if not text_blocks:
-            # No text detected, save original
             img.save(output_path)
             if progress_callback:
                 progress_callback(1.0, "No text detected in image.")
@@ -102,14 +86,13 @@ class ImageHandler:
 
         # Draw on image
         draw = ImageDraw.Draw(img)
-        font = find_system_font(translator.target_lang, font_size=14)
-
         total_blocks = len(text_blocks)
+
         for idx, block in enumerate(text_blocks):
             x0, y0, x1, y1 = block["bbox"]
             block_text = block["text"]
 
-            # White out original text area (with small padding)
+            # White out original text area
             padding = 3
             draw.rectangle(
                 [x0 - padding, y0 - padding, x1 + padding, y1 + padding],
@@ -119,7 +102,7 @@ class ImageHandler:
             # Translate
             translated = translator.translate_text(block_text)
 
-            # Calculate appropriate font size
+            # Calculate font size based on block height
             block_height = y1 - y0
             block_width = x1 - x0
             font_size = max(int(block_height * 0.85), 10)
@@ -127,9 +110,9 @@ class ImageHandler:
             try:
                 font = find_system_font(translator.target_lang, font_size=font_size)
             except Exception:
-                pass
+                font = ImageFont.load_default()
 
-            # Wrap text to fit in the block width
+            # Wrap text to fit box
             lines = wrap_text_for_box(draw, translated, font, block_width - 4)
 
             # Draw each line
@@ -149,7 +132,7 @@ class ImageHandler:
                     f"Translating text block {idx + 1} of {total_blocks}..."
                 )
 
-        # Save in original format
+        # Save image
         output_ext = output_path.rsplit('.', 1)[-1].upper()
         if output_ext == 'JPG':
             output_ext = 'JPEG'
@@ -164,7 +147,6 @@ class ImageHandler:
     def _group_ocr_words(self, ocr_data):
         """
         Group OCR-detected words into logical text blocks.
-        Returns list of {"text": str, "bbox": (x0, y0, x1, y1)}.
         """
         blocks = {}
         n_items = len(ocr_data.get('text', []))
@@ -195,7 +177,7 @@ class ImageHandler:
 
             blocks[block_num]["text"] += " " + text
 
-        # Filter blocks with translatable text
+        # Filter blocks with meaningful text
         result = []
         for block in blocks.values():
             text = block["text"].strip()
