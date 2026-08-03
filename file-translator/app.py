@@ -77,33 +77,162 @@ def format_file_size(size_bytes):
     return f"{size_bytes:.1f} TB"
 
 
-def main():
-    # ─── Custom CSS ────────────────────────────────────────────────
+def load_css():
+    """Inject custom CSS for a modern, polished look."""
     st.markdown("""
     <style>
-    .stFileUploader label { font-size: 1.1rem; }
-    div.stButton > button:first-child { 
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white; border: none; font-weight: 600;
+    /* Import Google Font */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Poppins', sans-serif;
     }
-    .success-box {
-        background: #d4edda; border: 1px solid #c3e6cb;
-        border-radius: 8px; padding: 16px; margin: 8px 0;
+
+    /* Animated gradient background */
+    .stApp {
+        background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+    }
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Main title gradient text */
+    h1 {
+        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800 !important;
+        font-size: 3rem !important;
+        text-align: center;
+    }
+
+    /* Subtitle text */
+    .subtitle {
+        text-align: center;
+        color: #b0b0d0;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Glassmorphism cards for st.info */
+    div[data-testid="stAlert"] {
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(123, 47, 247, 0.3) !important;
+        border-radius: 16px !important;
+        backdrop-filter: blur(10px);
+        color: #e0e0f0 !important;
+    }
+
+    /* Primary buttons */
+    div.stButton > button:first-child {
+        background: linear-gradient(90deg, #7b2ff7, #00d4ff);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+    }
+
+    /* Download button */
+    .stDownloadButton > button {
+        background: linear-gradient(90deg, #11998e, #38ef7d) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 14px !important;
+        font-weight: 600 !important;
+        padding: 0.7rem 1.5rem !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4) !important;
+    }
+    .stDownloadButton > button:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6) !important;
+    }
+
+    /* File uploader dropzone */
+    [data-testid="stFileUploaderDropzone"] {
+        background: rgba(255, 255, 255, 0.04);
+        border: 2px dashed #7b2ff7;
+        border-radius: 18px;
+        padding: 25px;
+        transition: all 0.3s ease;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: #00d4ff;
+        background: rgba(123, 47, 247, 0.08);
+    }
+
+    /* Sidebar styling */
+    section[data-testid="stSidebar"] {
+        background: rgba(15, 12, 41, 0.6);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid rgba(123, 47, 247, 0.2);
+    }
+
+    /* Selectboxes */
+    div[data-baseweb="select"] > div {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        border: 1px solid rgba(123, 47, 247, 0.3);
+    }
+
+    /* Metric cards */
+    div[data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 16px;
+        padding: 16px;
+        backdrop-filter: blur(8px);
+    }
+
+    /* Progress bar */
+    .stProgress > div > div > div > div {
+        background: linear-gradient(90deg, #7b2ff7, #00d4ff);
+    }
+
+    /* Divider */
+    hr {
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #7b2ff7, transparent);
+    }
+
+    /* Text color fix */
+    p, li, label, .stMarkdown {
+        color: #d0d0e8;
     }
     </style>
     """, unsafe_allow_html=True)
 
+
+def main():
+    # ─── Load Custom Styling ───────────────────────────────────────
+    load_css()
+
     # ─── Header ────────────────────────────────────────────────────
-    st.title("🌐 Universal File Translator")
+    st.markdown("<h1>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
     st.markdown(
-        "Upload any document, spreadsheet, presentation, image, or subtitle file — "
-        "translate it into your preferred language and download it **in the exact same format**."
+        "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
+        "translate it into your preferred language and download it <b>in the exact same format</b>.</p>",
+        unsafe_allow_html=True
     )
     st.divider()
 
     # ─── Sidebar Settings ──────────────────────────────────────────
     with st.sidebar:
-        st.header("⚙️ Translation Settings")
+        st.markdown("## ⚙️ Translation Settings")
 
         target_lang_name = st.selectbox(
             "🎯 Target Language",
@@ -131,23 +260,24 @@ def main():
         st.markdown("---")
         st.markdown("### 📂 Supported Formats")
         format_groups = {
-            "Documents": [".docx", ".pdf", ".txt", ".rtf", ".md"],
-            "Spreadsheets": [".xlsx", ".xls", ".csv"],
-            "Presentations": [".pptx"],
-            "Images (OCR)": [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"],
-            "Subtitles": [".srt", ".vtt"],
-            "Data / Web": [".json", ".xml", ".html"],
+            "📄 Documents": [".docx", ".pdf", ".txt", ".rtf", ".md"],
+            "📊 Spreadsheets": [".xlsx", ".xls", ".csv"],
+            "📑 Presentations": [".pptx"],
+            "🖼️ Images (OCR)": [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"],
+            "🎬 Subtitles": [".srt", ".vtt"],
+            "🔧 Data / Web": [".json", ".xml", ".html"],
         }
         for group, exts in format_groups.items():
-            st.markdown(f"**{group}**: {', '.join(exts)}")
+            st.markdown(f"**{group}**  \n<small style='color:#9090b0;'>{', '.join(exts)}</small>", unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown(
-            "<small>⚡ Powered by [deep-translator](https://github.com/nidhaloff/deep-translator), "
-            "[PyMuPDF](https://pymupdf.readthedocs.io/), [python-docx](https://python-docx.readthedocs.io/), "
-            "and more.</small>",
+            "<small>⚡ Powered by <a href='https://github.com/nidhaloff/deep-translator'>deep-translator</a>, "
+            "<a href='https://pymupdf.readthedocs.io/'>PyMuPDF</a>, "
+            "<a href='https://python-docx.readthedocs.io/'>python-docx</a>, and more.</small>",
             unsafe_allow_html=True
         )
+        st.markdown("<br><center><small>Made with ❤️ using Streamlit</small></center>", unsafe_allow_html=True)
 
     # ─── File Upload ───────────────────────────────────────────────
     uploaded_file = st.file_uploader(
@@ -164,6 +294,8 @@ def main():
             st.error(f"❌ Unsupported file format: `{file_ext}`")
             st.info(f"✅ Supported formats: {', '.join(SUPPORTED_EXTENSIONS)}")
             return
+
+        st.toast(f"'{uploaded_file.name}' uploaded successfully! 🎉")
 
         # ─── File Info Display ─────────────────────────────────────
         icon = FILE_TYPE_ICONS.get(file_ext, '📁')
@@ -214,13 +346,14 @@ def main():
 
                 start_time = time.time()
 
-                # Perform translation
-                handler.translate(
-                    input_path=input_path,
-                    output_path=output_path,
-                    translator=translator,
-                    progress_callback=update_progress
-                )
+                with st.spinner("🔄 Translating your file... please wait"):
+                    # Perform translation
+                    handler.translate(
+                        input_path=input_path,
+                        output_path=output_path,
+                        translator=translator,
+                        progress_callback=update_progress
+                    )
 
                 elapsed = time.time() - start_time
 
@@ -233,6 +366,7 @@ def main():
 
                 output_filename = f"{Path(uploaded_file.name).stem}_{target_lang}{file_ext}"
 
+                st.balloons()
                 st.markdown("---")
                 st.markdown("### 🎉 Translation Complete!")
 
@@ -243,7 +377,7 @@ def main():
                     st.metric("Translated Size", format_file_size(len(translated_data)))
 
                 st.download_button(
-                    label=f"📥 Download Translated File — `{output_filename}`",
+                    label=f"📥 Download Translated File — {output_filename}",
                     data=translated_data,
                     file_name=output_filename,
                     mime="application/octet-stream",
