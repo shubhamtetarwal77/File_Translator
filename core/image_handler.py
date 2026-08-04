@@ -8,6 +8,7 @@ Supports: PNG, JPG, JPEG, BMP, TIFF, WEBP
 
 import os
 import platform
+from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import pytesseract
 
@@ -23,6 +24,37 @@ else:
 class ImageHandler:
     """Handles translation of image files with text OCR."""
 
+        def _get_font_path(self, target_lang):
+        """
+        Return a font path that supports the target language.
+        For Hindi, force Noto Sans Devanagari from project/fonts.
+        """
+
+        # image_handler.py is inside core/handlers/
+        # parents[2] = project root
+        project_root = Path(__file__).resolve().parents[2]
+
+        fonts_dir = project_root / "fonts"
+
+        if target_lang in ["hi", "mr", "ne", "sa"]:
+            font_path = fonts_dir / "NotoSansDevanagari-Regular.ttf"
+
+            if font_path.exists():
+                return str(font_path)
+
+            raise RuntimeError(
+                f"Hindi font not found at: {font_path}\n"
+                "Create a fonts folder in your project root and put "
+                "NotoSansDevanagari-Regular.ttf inside it."
+            )
+
+        # fallback for English/Latin
+        fallback_font = fonts_dir / "NotoSans-Regular.ttf"
+
+        if fallback_font.exists():
+            return str(fallback_font)
+
+        return None
     def translate(self, input_path, output_path, translator, progress_callback=None, ocr_lang=None):
         """
         Translate text in an image.
