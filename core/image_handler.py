@@ -30,8 +30,6 @@ class ImageHandler:
         Return a font path that supports the target language.
         """
 
-        # Streamlit Cloud clones your repo here:
-        # /mount/src/file_translator
         project_root = Path.cwd()
         fonts_dir = project_root / "fonts"
 
@@ -50,10 +48,22 @@ class ImageHandler:
                 Path("/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf"),
                 Path("/usr/share/fonts/opentype/noto/NotoSansDevanagari-Regular.ttf"),
             ]
+        elif target_lang in ["ar", "ur", "fa"]:
+            candidates = [
+                fonts_dir / "NotoNaskhArabic-Regular.ttf",
+                Path("/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf"),
+                Path("/usr/share/fonts/opentype/noto/NotoNaskhArabic-Regular.ttf"),
+            ]
+        elif target_lang in ["zh-CN", "zh-TW", "ja", "ko"]:
+            candidates = [
+                fonts_dir / "NotoSansCJK-Regular.ttc",
+                Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
+            ]
         else:
             candidates = [
                 fonts_dir / "NotoSans-Regular.ttf",
                 Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+                Path("/usr/share/fonts/truetype/dejavu/DejaVuSansCondensed.ttf"),
             ]
 
         for path in candidates:
@@ -78,9 +88,9 @@ class ImageHandler:
         Translate text in an image.
 
         1. OCR text and positions
-        2. Group OCR words into lines
-        3. Translate each line
-        4. Erase original line area
+        2. Group OCR words into visual rows/chunks
+        3. Translate each chunk
+        4. Erase original chunk area
         5. Draw translated text using suitable font
         """
 
@@ -102,11 +112,11 @@ class ImageHandler:
 
             img = background
 
-        # Upscale image for better OCR
+        # Upscale image for better OCR.
         scale_factor = 2
         ocr_img = img.resize(
             (img.width * scale_factor, img.height * scale_factor),
-            Image.LANCZOS
+            Image.LANCZOS,
         )
 
         if progress_callback:
@@ -117,7 +127,7 @@ class ImageHandler:
                 ocr_img,
                 lang=ocr_lang,
                 output_type=pytesseract.Output.DICT,
-                config="--oem 3 --psm 6"
+                config="--oem 3 --psm 6",
             )
         except Exception as e:
             raise RuntimeError(
@@ -166,6 +176,19 @@ class ImageHandler:
             if not block_text or not is_translatable(block_text):
                 continue
 
+            block_width = max(5, x1 - x0)
+            block_height = max(5, y1 - y0)
+
+            # Skip tiny OCR detections; they usually create messy overlays.
+            if block_width < 25 or block_height < 8:
+                continue
+
+            # Skip very long noisy OCR blocks.
+            # These are often incorrectly merged table/diagram pieces.
+            if len(block_text) > 180:
+                print("SKIPPING LONG OCR BLOCK:", block_text)
+                continue
+
             try:
                 translated = translator.translate_text(block_text)
             except Exception as e:
@@ -176,10 +199,7 @@ class ImageHandler:
             if not translated:
                 translated = block_text
 
-            block_width = max(5, x1 - x0)
-            block_height = max(5, y1 - y0)
-
-            padding = 3
+            padding = 2
 
             erase_box = [
                 max(0, x0 - padding),
@@ -188,11 +208,16 @@ class ImageHandler:
                 min(img.height, y1 + padding),
             ]
 
-            bg_color = self._estimate_background_color(img, erase_box)
-            draw.rectangle(erase_box, fill=bg_color)
-
             box_width = erase_box[2] - erase_box[0]
             box_height = erase_box[3] - erase_box[1]
+
+            # Use smaller font for dense infographics.
+            is_title = y0 < img.height * 0.15 and block_width > img.width * 0.35
+
+            if is_title:
+                max_size = min(34, max(14, int(block_height * 0.75)))
+            else:
+                max_size = min(15, max(6, int(block_height * 0.60)))
 
             font, lines = self._fit_text_to_box(
                 draw=draw,
@@ -200,9 +225,15 @@ class ImageHandler:
                 font_path=font_path,
                 box_width=box_width,
                 box_height=box_height,
-                max_font_size=max(10, int(block_height * 1.1)),
-                min_font_size=6,
+                max_font_size=max_size,
+                min_font_size=5,
             )
+
+            if not lines:
+                continue
+
+            bg_color = self._estimate_background_color(img, erase_box)
+            draw.rectangle(erase_box, fill=bg_color)
 
             y_pos = erase_box[1]
 
@@ -214,7 +245,7 @@ class ImageHandler:
                     (erase_box[0] + 1, y_pos),
                     line,
                     fill=(0, 0, 0),
-                    font=font
+                    font=font,
                 )
 
                 bbox = draw.textbbox((0, 0), line, font=font)
@@ -224,7 +255,7 @@ class ImageHandler:
             if progress_callback:
                 progress_callback(
                     0.4 + 0.55 * (idx + 1) / total_blocks,
-                    f"Translating text line {idx + 1} of {total_blocks}..."
+                    f"Translating text block {idx + 1} of {total_blocks}...",
                 )
 
         output_ext = output_path.rsplit(".", 1)[-1].upper()
@@ -242,10 +273,11 @@ class ImageHandler:
 
     def _group_ocr_words_by_line(self, ocr_data, scale_factor=1):
         """
-        Group OCR words by line instead of huge blocks.
+        Group OCR words by visual rows and split large horizontal gaps.
+        Better for infographics than relying only on Tesseract line_num.
         """
 
-        lines = {}
+        words = []
         n_items = len(ocr_data.get("text", []))
 
         for i in range(n_items):
@@ -259,50 +291,112 @@ class ImageHandler:
             except Exception:
                 conf = -1
 
-            if conf < 35:
+            if conf < 45:
                 continue
-
-            block_num = ocr_data["block_num"][i]
-            par_num = ocr_data["par_num"][i]
-            line_num = ocr_data["line_num"][i]
-
-            key = (block_num, par_num, line_num)
 
             x = int(ocr_data["left"][i] / scale_factor)
             y = int(ocr_data["top"][i] / scale_factor)
             w = int(ocr_data["width"][i] / scale_factor)
             h = int(ocr_data["height"][i] / scale_factor)
 
-            if key not in lines:
-                lines[key] = {
-                    "words": [],
-                    "bbox": [x, y, x + w, y + h]
+            if w < 3 or h < 3:
+                continue
+
+            words.append(
+                {
+                    "text": text,
+                    "x": x,
+                    "y": y,
+                    "w": w,
+                    "h": h,
+                    "cx": x + w / 2,
+                    "cy": y + h / 2,
                 }
+            )
 
-            lines[key]["words"].append((x, text))
+        if not words:
+            return []
 
-            lines[key]["bbox"][0] = min(lines[key]["bbox"][0], x)
-            lines[key]["bbox"][1] = min(lines[key]["bbox"][1], y)
-            lines[key]["bbox"][2] = max(lines[key]["bbox"][2], x + w)
-            lines[key]["bbox"][3] = max(lines[key]["bbox"][3], y + h)
+        words.sort(key=lambda item: item["cy"])
+
+        rows = []
+
+        for word in words:
+            placed = False
+
+            for row in rows:
+                avg_y = sum(w["cy"] for w in row) / len(row)
+                avg_h = sum(w["h"] for w in row) / len(row)
+
+                if abs(word["cy"] - avg_y) <= max(6, avg_h * 0.6):
+                    row.append(word)
+                    placed = True
+                    break
+
+            if not placed:
+                rows.append([word])
 
         result = []
 
-        for line in lines.values():
-            sorted_words = sorted(line["words"], key=lambda item: item[0])
-            text = " ".join(word for _, word in sorted_words).strip()
+        for row in rows:
+            row.sort(key=lambda item: item["x"])
 
-            if text and is_translatable(text):
-                result.append({
-                    "text": text,
-                    "bbox": tuple(line["bbox"])
-                })
+            current_chunk = []
+
+            for word in row:
+                if not current_chunk:
+                    current_chunk.append(word)
+                    continue
+
+                prev = current_chunk[-1]
+                gap = word["x"] - (prev["x"] + prev["w"])
+                avg_h = sum(w["h"] for w in current_chunk) / len(current_chunk)
+
+                # Split line when there is a large horizontal gap.
+                if gap > max(28, avg_h * 2.5):
+                    self._add_ocr_chunk_to_result(current_chunk, result)
+                    current_chunk = [word]
+                else:
+                    current_chunk.append(word)
+
+            if current_chunk:
+                self._add_ocr_chunk_to_result(current_chunk, result)
 
         result.sort(key=lambda item: (item["bbox"][1], item["bbox"][0]))
 
         return result
 
+    def _add_ocr_chunk_to_result(self, chunk, result):
+        """
+        Convert one OCR word chunk into one translatable block.
+        """
+
+        if not chunk:
+            return
+
+        text = " ".join(w["text"] for w in chunk).strip()
+
+        if not text or not is_translatable(text):
+            return
+
+        x0 = min(w["x"] for w in chunk)
+        y0 = min(w["y"] for w in chunk)
+        x1 = max(w["x"] + w["w"] for w in chunk)
+        y1 = max(w["y"] + w["h"] for w in chunk)
+
+        result.append(
+            {
+                "text": text,
+                "bbox": (x0, y0, x1, y1),
+            }
+        )
+
     def _wrap_text_to_width(self, draw, text, font, max_width):
+        """
+        Wrap text to fit inside max_width.
+        Also breaks very long words character-by-character if needed.
+        """
+
         words = text.split()
 
         if not words:
@@ -322,7 +416,27 @@ class ImageHandler:
                 if current_line:
                     lines.append(current_line)
 
-                current_line = word
+                word_bbox = draw.textbbox((0, 0), word, font=font)
+                word_width = word_bbox[2] - word_bbox[0]
+
+                if word_width <= max_width:
+                    current_line = word
+                else:
+                    chunk = ""
+
+                    for ch in word:
+                        test_chunk = chunk + ch
+                        ch_bbox = draw.textbbox((0, 0), test_chunk, font=font)
+                        ch_width = ch_bbox[2] - ch_bbox[0]
+
+                        if ch_width <= max_width:
+                            chunk = test_chunk
+                        else:
+                            if chunk:
+                                lines.append(chunk)
+                            chunk = ch
+
+                    current_line = chunk
 
         if current_line:
             lines.append(current_line)
