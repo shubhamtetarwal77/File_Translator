@@ -6,15 +6,16 @@ Translates text in images using OCR and overlays translated text.
 Supports: PNG, JPG, JPEG, BMP, TIFF, WEBP
 """
 
-import os
 import platform
 from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
 import pytesseract
 
 from core.utils import is_translatable
 
 
+# Tesseract path
 if platform.system() == "Windows":
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 else:
@@ -24,37 +25,52 @@ else:
 class ImageHandler:
     """Handles translation of image files with text OCR."""
 
-        def _get_font_path(self, target_lang):
+    def _get_font_path(self, target_lang):
         """
         Return a font path that supports the target language.
         For Hindi, force Noto Sans Devanagari from project/fonts.
         """
 
         # image_handler.py is inside core/handlers/
-        # parents[2] = project root
+        # parents[2] is your project root
         project_root = Path(__file__).resolve().parents[2]
-
         fonts_dir = project_root / "fonts"
 
-        if target_lang in ["hi", "mr", "ne", "sa"]:
-            font_path = fonts_dir / "NotoSansDevanagari-Regular.ttf"
+        print("PROJECT ROOT:", project_root)
+        print("FONTS DIR:", fonts_dir)
+        print("TARGET LANG FOR FONT:", target_lang)
 
+        if target_lang in ["hi", "mr", "ne", "sa"]:
+            candidates = [
+                fonts_dir / "NotoSansDevanagari-Regular.ttf",
+                fonts_dir / "NotoSansDevanagari-VariableFont_wdth,wght.ttf",
+                project_root / "NotoSansDevanagari-Regular.ttf",
+                project_root / "NotoSansDevanagari-VariableFont_wdth,wght.ttf",
+                Path("/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf"),
+                Path("/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf"),
+                Path("/usr/share/fonts/opentype/noto/NotoSansDevanagari-Regular.ttf"),
+                Path("C:/Windows/Fonts/mangal.ttf"),
+            ]
+        else:
+            candidates = [
+                fonts_dir / "NotoSans-Regular.ttf",
+                Path("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"),
+                Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+                Path("C:/Windows/Fonts/arial.ttf"),
+            ]
+
+        for font_path in candidates:
             if font_path.exists():
+                print("USING FONT:", font_path)
                 return str(font_path)
 
-            raise RuntimeError(
-                f"Hindi font not found at: {font_path}\n"
-                "Create a fonts folder in your project root and put "
-                "NotoSansDevanagari-Regular.ttf inside it."
-            )
+        raise RuntimeError(
+            f"No suitable font found for target language '{target_lang}'.\n\n"
+            f"Put your Hindi font here:\n{fonts_dir / 'NotoSansDevanagari-Regular.ttf'}\n\n"
+            "Recommended: create a folder named 'fonts' in your project root, "
+            "then place NotoSansDevanagari-Regular.ttf inside it."
+        )
 
-        # fallback for English/Latin
-        fallback_font = fonts_dir / "NotoSans-Regular.ttf"
-
-        if fallback_font.exists():
-            return str(fallback_font)
-
-        return None
     def translate(self, input_path, output_path, translator, progress_callback=None, ocr_lang=None):
         """
         Translate text in an image.
@@ -68,8 +84,8 @@ class ImageHandler:
         """
 
         if ocr_lang is None:
-            # OCR language should be source image language.
-            # Your sample image is English.
+            # OCR language should match the source image language.
+            # Your barley image is English.
             ocr_lang = "eng"
 
         if progress_callback:
@@ -79,16 +95,16 @@ class ImageHandler:
 
         if img.mode != "RGB":
             background = Image.new("RGB", img.size, (255, 255, 255))
+
             if img.mode == "RGBA":
                 background.paste(img, mask=img.split()[3])
             else:
                 background.paste(img)
+
             img = background
 
-        # Optional upscale helps OCR on small infographic text
-        original_size = img.size
+        # Upscale helps OCR detect small text
         scale_factor = 2
-
         ocr_img = img.resize(
             (img.width * scale_factor, img.height * scale_factor),
             Image.LANCZOS
@@ -108,7 +124,9 @@ class ImageHandler:
             raise RuntimeError(
                 f"OCR failed: {e}\n\n"
                 "Make sure Tesseract OCR is installed.\n"
-                "For Streamlit Cloud, add tesseract packages in packages.txt."
+                "On Streamlit Cloud, add these to packages.txt:\n"
+                "tesseract-ocr\n"
+                "tesseract-ocr-eng"
             )
 
         if progress_callback:
@@ -118,23 +136,26 @@ class ImageHandler:
 
         if not text_blocks:
             img.save(output_path)
+
             if progress_callback:
                 progress_callback(1.0, "No text detected in image.")
+
             return
 
         draw = ImageDraw.Draw(img)
 
-        target_lang = getattr(translator, "target_lang", None)
-        if target_lang is None:
-            target_lang = getattr(translator, "target", "en")
+        # Safely detect target language from your TranslationEngine
+        target_lang = (
+            getattr(translator, "target_lang", None)
+            or getattr(translator, "target", None)
+            or getattr(translator, "target_language", None)
+            or "hi"
+        )
+
+        print("TRANSLATOR OBJECT:", translator)
+        print("DETECTED TARGET LANG:", target_lang)
 
         font_path = self._get_font_path(target_lang)
-
-        if font_path is None:
-            raise RuntimeError(
-                f"No suitable font found for target language '{target_lang}'. "
-                "Install Noto fonts, especially NotoSansDevanagari for Hindi."
-            )
 
         total_blocks = len(text_blocks)
 
@@ -151,12 +172,16 @@ class ImageHandler:
             # Translate safely
             try:
                 translated = translator.translate_text(block_text)
-            except Exception:
-                # Do not write API errors into the image.
+            except Exception as e:
+                print("Translation failed for:", block_text)
+                print("Error:", e)
                 translated = block_text
 
             if not translated:
                 translated = block_text
+
+            print("ORIGINAL:", block_text)
+            print("TRANSLATED:", translated)
 
             block_width = max(5, x1 - x0)
             block_height = max(5, y1 - y0)
@@ -170,9 +195,7 @@ class ImageHandler:
                 min(img.height, y1 + padding),
             ]
 
-            # Estimate local background color instead of always white
             bg_color = self._estimate_background_color(img, erase_box)
-
             draw.rectangle(erase_box, fill=bg_color)
 
             box_width = erase_box[2] - erase_box[0]
@@ -226,13 +249,10 @@ class ImageHandler:
 
     def _group_ocr_words_by_line(self, ocr_data, scale_factor=1):
         """
-        Group OCR words by line instead of by large Tesseract block.
-
-        This is much better for posters, screenshots, and infographics.
+        Group OCR words by line instead of by huge Tesseract block.
         """
 
         lines = {}
-
         n_items = len(ocr_data.get("text", []))
 
         for i in range(n_items):
@@ -276,7 +296,6 @@ class ImageHandler:
         result = []
 
         for line in lines.values():
-            # Sort words left-to-right
             sorted_words = sorted(line["words"], key=lambda item: item[0])
             text = " ".join(word for _, word in sorted_words).strip()
 
@@ -286,57 +305,9 @@ class ImageHandler:
                     "bbox": tuple(line["bbox"])
                 })
 
-        # Process top-to-bottom
         result.sort(key=lambda item: (item["bbox"][1], item["bbox"][0]))
 
         return result
-
-    def _get_font_path(self, target_lang):
-        """
-        Return suitable font path for target language.
-        Add your own bundled fonts if deploying to Streamlit Cloud.
-        """
-
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-
-        candidates = []
-
-        if target_lang in ["hi", "mr", "ne", "sa"]:
-            candidates.extend([
-                os.path.join(base_dir, "../../fonts/NotoSansDevanagari-Regular.ttf"),
-                os.path.join(base_dir, "../fonts/NotoSansDevanagari-Regular.ttf"),
-                "fonts/NotoSansDevanagari-Regular.ttf",
-                "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf",
-                "/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf",
-                "/usr/share/fonts/opentype/noto/NotoSansDevanagari-Regular.ttf",
-                "C:/Windows/Fonts/mangal.ttf",
-            ])
-        elif target_lang in ["ar", "ur", "fa"]:
-            candidates.extend([
-                "fonts/NotoNaskhArabic-Regular.ttf",
-                "/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf",
-                "/usr/share/fonts/opentype/noto/NotoNaskhArabic-Regular.ttf",
-            ])
-        elif target_lang in ["zh-CN", "zh-TW", "ja", "ko"]:
-            candidates.extend([
-                "fonts/NotoSansCJK-Regular.ttc",
-                "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
-            ])
-
-        # General fallback fonts
-        candidates.extend([
-            "fonts/NotoSans-Regular.ttf",
-            "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-            "C:/Windows/Fonts/arial.ttf",
-        ])
-
-        for path in candidates:
-            normalized = os.path.abspath(path) if not os.path.isabs(path) else path
-            if os.path.exists(normalized):
-                return normalized
-
-        return None
 
     def _wrap_text_to_width(self, draw, text, font, max_width):
         words = text.split()
@@ -357,6 +328,7 @@ class ImageHandler:
             else:
                 if current_line:
                     lines.append(current_line)
+
                 current_line = word
 
         if current_line:
@@ -375,7 +347,7 @@ class ImageHandler:
         min_font_size=6,
     ):
         """
-        Reduce font size until wrapped translated text fits inside box.
+        Reduce font size until translated text fits inside box.
         """
 
         box_width = max(5, box_width)
@@ -394,11 +366,10 @@ class ImageHandler:
             if total_height <= box_height:
                 return font, lines
 
-        # Final fallback
+        # Final fallback with smallest font
         font = ImageFont.truetype(font_path, size=min_font_size)
         lines = self._wrap_text_to_width(draw, text, font, box_width - 2)
 
-        # Clip number of lines to box height
         clipped_lines = []
         used_height = 0
 
@@ -416,8 +387,7 @@ class ImageHandler:
 
     def _estimate_background_color(self, img, box):
         """
-        Estimate background color from around the OCR box.
-        This looks better than always using white.
+        Estimate background color from around OCR box.
         """
 
         x0, y0, x1, y1 = box
