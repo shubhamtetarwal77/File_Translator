@@ -25,51 +25,54 @@ else:
 class ImageHandler:
     """Handles translation of image files with text OCR."""
 
-    def _get_font_path(self, target_lang):
-        """
-        Return a font path that supports the target language.
-        For Hindi, force Noto Sans Devanagari from project/fonts.
-        """
-
-        # image_handler.py is inside core/handlers/
-        # parents[2] is your project root
-        project_root = Path(__file__).resolve().parents[2]
-        fonts_dir = project_root / "fonts"
-
-        print("PROJECT ROOT:", project_root)
-        print("FONTS DIR:", fonts_dir)
-        print("TARGET LANG FOR FONT:", target_lang)
-
-        if target_lang in ["hi", "mr", "ne", "sa"]:
-            candidates = [
-                fonts_dir / "NotoSansDevanagari-Regular.ttf",
-                fonts_dir / "NotoSansDevanagari-VariableFont_wdth,wght.ttf",
-                project_root / "NotoSansDevanagari-Regular.ttf",
-                project_root / "NotoSansDevanagari-VariableFont_wdth,wght.ttf",
-                Path("/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf"),
-                Path("/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf"),
-                Path("/usr/share/fonts/opentype/noto/NotoSansDevanagari-Regular.ttf"),
-                Path("C:/Windows/Fonts/mangal.ttf"),
-            ]
-        else:
-            candidates = [
-                fonts_dir / "NotoSans-Regular.ttf",
-                Path("/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf"),
-                Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
-                Path("C:/Windows/Fonts/arial.ttf"),
-            ]
-
-        for font_path in candidates:
-            if font_path.exists():
-                print("USING FONT:", font_path)
-                return str(font_path)
-
-        raise RuntimeError(
-            f"No suitable font found for target language '{target_lang}'.\n\n"
-            f"Put your Hindi font here:\n{fonts_dir / 'NotoSansDevanagari-Regular.ttf'}\n\n"
-            "Recommended: create a folder named 'fonts' in your project root, "
-            "then place NotoSansDevanagari-Regular.ttf inside it."
-        )
+        def _get_font_path(self, target_lang):
+            """
+            Return a font path that supports the target language.
+            For Hindi, force Noto Sans Devanagari from project/fonts.
+            """
+    
+            current_file = Path(__file__).resolve()
+    
+            # Your file is: /mount/src/file_translator/core/image_handler.py
+            # So project root is: /mount/src/file_translator
+            project_root = current_file.parents[1]
+    
+            fonts_dir = project_root / "fonts"
+    
+            print("CURRENT FILE:", current_file)
+            print("PROJECT ROOT:", project_root)
+            print("FONTS DIR:", fonts_dir)
+            print("TARGET LANG:", target_lang)
+    
+            if target_lang in ["hi", "mr", "ne", "sa"]:
+                candidates = [
+                    fonts_dir / "NotoSansDevanagari-Regular.ttf",
+                    fonts_dir / "NotoSansDevanagari-VariableFont_wdth,wght.ttf",
+                    Path.cwd() / "fonts" / "NotoSansDevanagari-Regular.ttf",
+                    Path("/mount/src/file_translator/fonts/NotoSansDevanagari-Regular.ttf"),
+                    Path("/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf"),
+                    Path("/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf"),
+                    Path("/usr/share/fonts/opentype/noto/NotoSansDevanagari-Regular.ttf"),
+                ]
+            else:
+                candidates = [
+                    fonts_dir / "NotoSans-Regular.ttf",
+                    Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
+                ]
+    
+            for path in candidates:
+                print("CHECK FONT:", path, "EXISTS:", path.exists())
+    
+                if path.exists():
+                    print("USING FONT:", path)
+                    return str(path)
+    
+            raise RuntimeError(
+                f"No suitable font found for target language '{target_lang}'.\n\n"
+                f"Expected Hindi font here:\n{fonts_dir / 'NotoSansDevanagari-Regular.ttf'}\n\n"
+                "Make sure the file exists in your GitHub repo at:\n"
+                "fonts/NotoSansDevanagari-Regular.ttf"
+            )
 
     def translate(self, input_path, output_path, translator, progress_callback=None, ocr_lang=None):
         """
