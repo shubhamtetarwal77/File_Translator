@@ -134,25 +134,19 @@ def load_global_css():
         margin-bottom: 1rem;
     }
     
-    /* Hide top header bar (the white space at the top) */
+    /* Hide top header bar */
     header { display: none !important; }
 
     /* ════════════════════════════════════════════════════════════
-       LOCK SIDEBAR — Hide minimize button, keep it styled globally
+       LOCK SIDEBAR — Hide minimize button completely globally
        ════════════════════════════════════════════════════════════ */
-    [data-testid="collapsedControl"] {
-        display: none !important;
-    }
+    [data-testid="collapsedControl"] { display: none !important; }
+    [data-testid="stSidebarCollapseButton"] { display: none !important; }
     
     section[data-testid="stSidebar"] {
         background: rgba(15, 12, 41, 0.6);
         backdrop-filter: blur(12px);
         border-right: 1px solid rgba(123, 47, 247, 0.2);
-    }
-
-    /* Force hide the inner close "X" button if it appears */
-    [data-testid="stSidebarCollapseButton"] {
-        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -160,17 +154,10 @@ def load_global_css():
 
 def show_landing_page():
     """Displays an advanced animated landing screen."""
-
     st.markdown("""
     <style>
-    /* Hide sidebar only on landing page */
-    [data-testid="stSidebar"] { 
-        display: none !important; 
-    }
-
-    [data-testid="collapsedControl"] {
-        display: none !important;
-    }
+    /* Hide sidebar ONLY on landing page */
+    [data-testid="stSidebar"] { display: none !important; }
 
     /* Landing page full width */
     .main .block-container {
@@ -208,22 +195,10 @@ def show_landing_page():
     .particle:nth-child(7) { left: 85%; animation-delay: 2.5s; animation-duration: 14s; }
 
     @keyframes floatParticle {
-        0% {
-            top: 110%;
-            opacity: 0;
-            transform: translateX(0) scale(0.8);
-        }
-        15% {
-            opacity: 1;
-        }
-        50% {
-            transform: translateX(60px) scale(1.2);
-        }
-        100% {
-            top: -10%;
-            opacity: 0;
-            transform: translateX(-60px) scale(0.6);
-        }
+        0% { top: 110%; opacity: 0; transform: translateX(0) scale(0.8); }
+        15% { opacity: 1; }
+        50% { transform: translateX(60px) scale(1.2); }
+        100% { top: -10%; opacity: 0; transform: translateX(-60px) scale(0.6); }
     }
 
     /* Hero Section */
@@ -293,10 +268,7 @@ def show_landing_page():
         animation: fadeIn 1.8s ease forwards;
     }
 
-    .hero-highlight {
-        color: #00d4ff;
-        font-weight: 700;
-    }
+    .hero-highlight { color: #00d4ff; font-weight: 700; }
 
     @keyframes fadeSlideUp {
         from { opacity: 0; transform: translateY(35px); }
@@ -308,10 +280,7 @@ def show_landing_page():
         to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* Scroll cue */
     .scroll-cue {
@@ -412,15 +381,8 @@ def show_landing_page():
         animation: rotateRingReverse 26s linear infinite;
     }
 
-    @keyframes rotateRing {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    @keyframes rotateRingReverse {
-        from { transform: rotate(360deg); }
-        to { transform: rotate(0deg); }
-    }
+    @keyframes rotateRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotateRingReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
     .floating-lang {
         position: absolute;
@@ -523,9 +485,7 @@ def show_landing_page():
         background: rgba(255,255,255,0.075);
     }
 
-    .impact-card:hover::before {
-        transform: scale(1.8);
-    }
+    .impact-card:hover::before { transform: scale(1.8); }
 
     .impact-icon {
         font-size: 3.3rem;
@@ -538,16 +498,8 @@ def show_landing_page():
         50% { transform: translateY(-8px); }
     }
 
-    .impact-card h3 {
-        margin: 8px 0 12px 0;
-        font-size: 1.45rem;
-    }
-
-    .impact-card p {
-        color: #b0b0d0;
-        line-height: 1.65;
-        font-size: 1rem;
-    }
+    .impact-card h3 { margin: 8px 0 12px 0; font-size: 1.45rem; }
+    .impact-card p { color: #b0b0d0; line-height: 1.65; font-size: 1rem; }
 
     /* Timeline */
     .journey {
@@ -591,16 +543,8 @@ def show_landing_page():
         font-weight: 800;
     }
 
-    .step-card h4 {
-        color: white;
-        margin-bottom: 8px;
-    }
-
-    .step-card p {
-        color: #b0b0d0;
-        font-size: 0.95rem;
-        line-height: 1.55;
-    }
+    .step-card h4 { color: white; margin-bottom: 8px; }
+    .step-card p { color: #b0b0d0; font-size: 0.95rem; line-height: 1.55; }
 
     /* Photo storytelling */
     .photo-grid {
@@ -635,31 +579,12 @@ def show_landing_page():
         background: linear-gradient(180deg, transparent, rgba(0,0,0,0.78));
     }
 
-    .photo-content {
-        position: absolute;
-        left: 28px;
-        right: 28px;
-        bottom: 28px;
-    }
+    .photo-content { position: absolute; left: 28px; right: 28px; bottom: 28px; }
+    .photo-content h3 { color: white; font-size: 1.7rem; margin-bottom: 8px; }
+    .photo-content p { color: #d6d6ec; line-height: 1.55; }
 
-    .photo-content h3 {
-        color: white;
-        font-size: 1.7rem;
-        margin-bottom: 8px;
-    }
-
-    .photo-content p {
-        color: #d6d6ec;
-        line-height: 1.55;
-    }
-
-    .photo-1 {
-        background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80');
-    }
-
-    .photo-2 {
-        background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80');
-    }
+    .photo-1 { background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80'); }
+    .photo-2 { background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80'); }
 
     /* Final CTA */
     .final-cta {
@@ -669,12 +594,7 @@ def show_landing_page():
         z-index: 2;
     }
 
-    .final-cta h2 {
-        color: white;
-        font-size: 2.7rem;
-        margin-bottom: 12px;
-    }
-
+    .final-cta h2 { color: white; font-size: 2.7rem; margin-bottom: 12px; }
     .final-cta p {
         color: #b0b0d0;
         font-size: 1.15rem;
@@ -685,28 +605,11 @@ def show_landing_page():
 
     /* Responsive */
     @media (max-width: 900px) {
-        .impact-grid,
-        .journey-steps,
-        .photo-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .map-container {
-            height: 420px;
-        }
-
-        .floating-lang {
-            font-size: 0.95rem;
-            padding: 7px 12px;
-        }
-
-        .route {
-            display: none;
-        }
-
-        .hero-subtitle {
-            font-size: 1.05rem;
-        }
+        .impact-grid, .journey-steps, .photo-grid { grid-template-columns: 1fr; }
+        .map-container { height: 420px; }
+        .floating-lang { font-size: 0.95rem; padding: 7px 12px; }
+        .route { display: none; }
+        .hero-subtitle { font-size: 1.05rem; }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -756,7 +659,6 @@ def show_landing_page():
             <span>Hello</span><span>Hola</span><span>Bonjour</span><span>नमस्ते</span><span>مرحبا</span>
             <span>こんにちは</span><span>안녕하세요</span><span>Ciao</span><span>Hallo</span><span>Olá</span>
             <span>Привет</span><span>你好</span><span>Jambo</span><span>Merhaba</span><span>שלום</span>
-
             <span>Hello</span><span>Hola</span><span>Bonjour</span><span>नमस्ते</span><span>مرحبا</span>
             <span>こんにちは</span><span>안녕하세요</span><span>Ciao</span><span>Hallo</span><span>Olá</span>
             <span>Привет</span><span>你好</span><span>Jambo</span><span>Merhaba</span><span>שלום</span>
@@ -904,6 +806,18 @@ def show_landing_page():
 def show_main_app():
     """Displays the main translation tool."""
     
+    # Force sidebar open on this page
+    st.markdown("""
+    <style>
+    [data-testid="stSidebar"] {
+        display: block !important;
+        visibility: visible !important;
+        min-width: 21rem !important;
+        max-width: 21rem !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
     st.markdown("<h1 class='app-title'>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
@@ -915,7 +829,7 @@ def show_main_app():
 
     # ─── Sidebar Settings ──────────────────────────────────────────
     with st.sidebar:
-        if st.button("🏠 Back to Home Screen"):
+        if st.button("🏠 Back to Home Screen", use_container_width=True):
             st.session_state.app_started = False
             st.rerun()
             
@@ -1014,7 +928,8 @@ def show_main_app():
                 status_text = st.empty()
 
                 def update_progress(progress, message):
-                    progress_bar.progress(int(progress * 100))
+                    # Fixed crash bug here with min()
+                    progress_bar.progress(min(int(progress * 100), 100))
                     status_text.text(message)
 
                 start_time = time.time()
