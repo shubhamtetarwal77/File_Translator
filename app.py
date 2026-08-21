@@ -213,7 +213,7 @@ def show_landing_page():
     col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1, 1.5])
     with col_btn2:
         st.write("") # spacing
-        if st.button("🚀 Open Translator", use_container_width=True):
+        if st.button("Open Translator", use_container_width=True):
             st.session_state.app_started = True
             st.rerun()
 
