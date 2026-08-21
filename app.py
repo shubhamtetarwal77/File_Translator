@@ -12,7 +12,7 @@ import time
 from core.translator import TranslationEngine
 from core.handlers import get_handler
 
-# ─── Page Configuration ────────────────────────────────────────────
+# ─── Page Configuration (Must be the first st command) ─────────────
 st.set_page_config(
     page_title="Universal File Translator",
     page_icon="🌐",
@@ -77,18 +77,19 @@ def format_file_size(size_bytes):
     return f"{size_bytes:.1f} TB"
 
 
-def load_css():
-    """Inject custom CSS for a modern, polished look."""
+def load_global_css():
+    """Inject global CSS that applies to both Landing Page and Main App."""
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@300;400;600;700;800&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Poppins', sans-serif;
     }
 
+    /* Animated background */
     .stApp {
-        background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
+        background: linear-gradient(-45deg, #050510, #1a1a3a, #0f0f24, #050510);
         background-size: 400% 400%;
         animation: gradientShift 15s ease infinite;
     }
@@ -98,31 +99,7 @@ def load_css():
         100% { background-position: 0% 50%; }
     }
 
-    h1 {
-        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 800 !important;
-        font-size: 3rem !important;
-        text-align: center;
-    }
-
-    .subtitle {
-        text-align: center;
-        color: #b0b0d0;
-        font-size: 1.1rem;
-        margin-bottom: 1rem;
-    }
-
-    div[data-testid="stAlert"] {
-        background: rgba(255, 255, 255, 0.06) !important;
-        border: 1px solid rgba(123, 47, 247, 0.3) !important;
-        border-radius: 16px !important;
-        backdrop-filter: blur(10px);
-        color: #e0e0f0 !important;
-    }
-
+    /* Primary buttons */
     div.stButton > button:first-child {
         background: linear-gradient(90deg, #7b2ff7, #00d4ff);
         color: white;
@@ -130,55 +107,179 @@ def load_css():
         border-radius: 14px;
         padding: 0.7rem 1.5rem;
         font-weight: 600;
-        font-size: 1.05rem;
+        font-size: 1.1rem;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
     }
     div.stButton > button:first-child:hover {
-        transform: translateY(-2px) scale(1.02);
+        transform: translateY(-3px) scale(1.03);
         box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
     }
 
-    .stDownloadButton > button {
-        background: linear-gradient(90deg, #11998e, #38ef7d) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 14px !important;
-        font-weight: 600 !important;
-        padding: 0.7rem 1.5rem !important;
-        transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4) !important;
+    /* App Title */
+    h1.app-title {
+        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800 !important;
+        font-size: 3.5rem !important;
+        text-align: center;
+        margin-bottom: 0px;
     }
-    .stDownloadButton > button:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6) !important;
+    .subtitle {
+        text-align: center;
+        color: #b0b0d0;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
     }
-
-    [data-testid="stFileUploaderDropzone"] {
-        background: rgba(255, 255, 255, 0.04);
-        border: 2px dashed #7b2ff7;
-        border-radius: 18px;
-        padding: 25px;
-        transition: all 0.3s ease;
-    }
-
-    section[data-testid="stSidebar"] {
-        background: rgba(15, 12, 41, 0.6);
-        backdrop-filter: blur(12px);
-        border-right: 1px solid rgba(123, 47, 247, 0.2);
-    }
-
-    p, li, label, .stMarkdown {
-        color: #d0d0e8;
-    }
+    
+    /* Hide top bar */
+    header { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
 
-def main():
-    load_css()
+def show_landing_page():
+    """Displays the beautiful animated landing screen."""
+    
+    # Custom CSS for the landing page visuals
+    st.markdown("""
+    <style>
+    [data-testid="stSidebar"] { display: none; }
+    
+    .map-container {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        background: url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg') no-repeat center center;
+        background-size: contain;
+        opacity: 0.85;
+        margin-top: 30px;
+        margin-bottom: 50px;
+        filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2));
+    }
 
-    st.markdown("<h1>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
+    .floating-lang {
+        position: absolute;
+        font-weight: 700;
+        font-size: 1.5rem;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: rgba(15, 12, 41, 0.8);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        color: white;
+    }
+
+    /* Coordinates and animations for floating languages */
+    .lang-en { top: 25%; left: 15%; color: #00d4ff; animation: float 4s ease-in-out infinite; } /* North America */
+    .lang-es { top: 60%; left: 25%; color: #ff2fd0; animation: float 5s ease-in-out infinite 0.5s; } /* South America */
+    .lang-fr { top: 30%; left: 45%; color: #7b2ff7; animation: float 6s ease-in-out infinite 1s; } /* Europe */
+    .lang-ar { top: 45%; left: 55%; color: #00ffcc; animation: float 4.5s ease-in-out infinite 1.5s; } /* Middle East */
+    .lang-hi { top: 45%; left: 68%; color: #ffaa00; animation: float 5.5s ease-in-out infinite 0.2s; } /* India */
+    .lang-ja { top: 35%; left: 82%; color: #ff5555; animation: float 4s ease-in-out infinite 0.8s; } /* Japan */
+    .lang-sw { top: 65%; left: 52%; color: #aaff00; animation: float 5s ease-in-out infinite 1.2s; } /* Africa */
+
+    @keyframes float {
+        0% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-20px) scale(1.05); }
+        100% { transform: translateY(0px) scale(1); }
+    }
+
+    .feature-card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(123, 47, 247, 0.3);
+        border-radius: 15px;
+        padding: 25px;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+    .feature-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255,255,255,0.06);
+        border-color: #00d4ff;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # 1. Main Hero Header
+    st.markdown("<h1 class='app-title' style='font-size: 4.5rem !important; margin-top:20px;'>Break Language Barriers</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>The world is connected. Your files should be too. Translate entire documents, spreadsheets, and presentations while keeping the exact same layout.</p>", unsafe_allow_html=True)
+
+    # Big Call to Action Button
+    col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1, 1.5])
+    with col_btn2:
+        st.write("") # spacing
+        if st.button("🚀 Open Translator", use_container_width=True):
+            st.session_state.app_started = True
+            st.rerun()
+
+    # 2. Interactive Animated World Map
+    st.markdown("""
+    <div class="map-container">
+        <div class="floating-lang lang-en">Hello 👋</div>
+        <div class="floating-lang lang-es">Hola 💃</div>
+        <div class="floating-lang lang-fr">Bonjour 🥐</div>
+        <div class="floating-lang lang-ar">مرحباً 🕌</div>
+        <div class="floating-lang lang-hi">नमस्ते 🪷</div>
+        <div class="floating-lang lang-ja">こんにちは 🌸</div>
+        <div class="floating-lang lang-sw">Jambo 🌍</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # 3. Why Translation Matters (Value Proposition)
+    st.markdown("<h2 style='text-align:center; margin-bottom: 30px; color: #fff;'>The Power of Understanding</h2>", unsafe_allow_html=True)
+    
+    col_feat1, col_feat2, col_feat3 = st.columns(3)
+    
+    with col_feat1:
+        st.markdown("""
+        <div class="feature-card">
+            <h1 style="font-size: 3rem; margin:0;">🌍</h1>
+            <h3 style="color:#00d4ff;">Global Business</h3>
+            <p style="color:#b0b0d0;">Seamlessly translate contracts, pitch decks, and financial spreadsheets. Expand your company's reach to international markets without breaking your document layouts.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_feat2:
+        st.markdown("""
+        <div class="feature-card">
+            <h1 style="font-size: 3rem; margin:0;">🤝</h1>
+            <h3 style="color:#ff2fd0;">Deep Connections</h3>
+            <p style="color:#b0b0d0;">Translate letters, subtitle files (SRT/VTT), and images. Share stories, movies, and culture with people around the world, making the planet feel a little bit smaller.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col_feat3:
+        st.markdown("""
+        <div class="feature-card">
+            <h1 style="font-size: 3rem; margin:0;">🎓</h1>
+            <h3 style="color:#7b2ff7;">Limitless Learning</h3>
+            <p style="color:#b0b0d0;">Access research papers, academic PDFs, and historical texts originally written in foreign languages. Turn any PDF into a readable, localized Word document instantly.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.write("<br><br>", unsafe_allow_html=True)
+
+    # 4. Stunning Visual Separator / Inspirational Imagery
+    col_img1, col_img2 = st.columns(2)
+    with col_img1:
+        st.image("https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="Collaborate across borders.", use_column_width=True)
+    with col_img2:
+        st.image("https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="A connected world.", use_column_width=True)
+
+    st.write("<br><br>", unsafe_allow_html=True)
+
+
+def show_main_app():
+    """Displays the main translation tool."""
+    
+    st.markdown("<h1 class='app-title'>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
         "translate it into your preferred language and download it "
@@ -189,6 +290,11 @@ def main():
 
     # ─── Sidebar Settings ──────────────────────────────────────────
     with st.sidebar:
+        # Back to Home Button
+        if st.button("🏠 Back to Home Screen"):
+            st.session_state.app_started = False
+            st.rerun()
+            
         st.markdown("## ⚙️ Translation Settings")
 
         target_lang_name = st.selectbox(
@@ -210,6 +316,19 @@ def main():
             "🤖 Translation Engine",
             ['Google Translate (Free)', 'MyMemory (Free)']
         )
+        
+        st.markdown("---")
+        st.markdown("### 📂 Supported Formats")
+        format_groups = {
+            "📄 Documents": [".docx", ".pdf", ".txt", ".rtf", ".md"],
+            "📊 Spreadsheets": [".xlsx", ".xls", ".csv"],
+            "📑 Presentations": [".pptx"],
+            "🖼️ Images (OCR)": [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"],
+            "🎬 Subtitles": [".srt", ".vtt"],
+            "🔧 Data / Web": [".json", ".xml", ".html"],
+        }
+        for group, exts in format_groups.items():
+            st.markdown(f"**{group}**  \n<small style='color:#9090b0;'>{', '.join(exts)}</small>", unsafe_allow_html=True)
 
     # ─── File Upload ───────────────────────────────────────────────
     uploaded_file = st.file_uploader(
@@ -324,7 +443,6 @@ def main():
 
             st.markdown("#### 💾 Specify Download Filename")
             
-            # Text box for custom file name
             custom_filename = st.text_input(
                 "Type the filename you want to save as:",
                 value=st.session_state.default_name,
@@ -337,7 +455,6 @@ def main():
             for ch in r'\/:*?"<>|':
                 custom_filename = custom_filename.replace(ch, "_")
 
-            # Enforce extension
             target_ext = st.session_state.target_ext
             if not custom_filename.lower().endswith(target_ext.lower()):
                 custom_filename = str(Path(custom_filename).stem) + target_ext
@@ -356,6 +473,19 @@ def main():
                 f"Target: {st.session_state.target_lang_name}"
             )
 
+def main():
+    # Load the basic styling for the app
+    load_global_css()
+
+    # Initialize the app state
+    if 'app_started' not in st.session_state:
+        st.session_state.app_started = False
+
+    # Route to the correct screen based on the state
+    if not st.session_state.app_started:
+        show_landing_page()
+    else:
+        show_main_app()
 
 if __name__ == "__main__":
     main()
