@@ -12,7 +12,7 @@ import time
 from core.translator import TranslationEngine
 from core.handlers import get_handler
 
-# ─── Page Configuration (Must be the first st command) ─────────────
+# ─── Page Configuration ────────────────────────────────────────────
 st.set_page_config(
     page_title="Universal File Translator",
     page_icon="🌐",
@@ -77,8 +77,8 @@ def format_file_size(size_bytes):
     return f"{size_bytes:.1f} TB"
 
 
-def load_global_css():
-    """Inject global CSS that applies to both Landing Page and Main App."""
+def load_css():
+    """Inject custom CSS for a modern, polished look."""
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
@@ -87,7 +87,6 @@ def load_global_css():
         font-family: 'Poppins', sans-serif;
     }
 
-    /* Animated background */
     .stApp {
         background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
         background-size: 400% 400%;
@@ -99,25 +98,7 @@ def load_global_css():
         100% { background-position: 0% 50%; }
     }
 
-    /* Primary buttons */
-    div.stButton > button:first-child {
-        background: linear-gradient(90deg, #7b2ff7, #00d4ff);
-        color: white;
-        border: none;
-        border-radius: 14px;
-        padding: 0.7rem 1.5rem;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
-    }
-    div.stButton > button:first-child:hover {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
-    }
-
-    /* Other standard stylings */
-    h1.app-title {
+    h1 {
         background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -126,12 +107,14 @@ def load_global_css():
         font-size: 3rem !important;
         text-align: center;
     }
+
     .subtitle {
         text-align: center;
         color: #b0b0d0;
         font-size: 1.1rem;
         margin-bottom: 1rem;
     }
+
     div[data-testid="stAlert"] {
         background: rgba(255, 255, 255, 0.06) !important;
         border: 1px solid rgba(123, 47, 247, 0.3) !important;
@@ -139,6 +122,23 @@ def load_global_css():
         backdrop-filter: blur(10px);
         color: #e0e0f0 !important;
     }
+
+    div.stButton > button:first-child {
+        background: linear-gradient(90deg, #7b2ff7, #00d4ff);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
+    }
+    div.stButton > button:first-child:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
+    }
+
     .stDownloadButton > button {
         background: linear-gradient(90deg, #11998e, #38ef7d) !important;
         color: white !important;
@@ -153,6 +153,7 @@ def load_global_css():
         transform: translateY(-2px) scale(1.02);
         box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6) !important;
     }
+
     [data-testid="stFileUploaderDropzone"] {
         background: rgba(255, 255, 255, 0.04);
         border: 2px dashed #7b2ff7;
@@ -160,11 +161,13 @@ def load_global_css():
         padding: 25px;
         transition: all 0.3s ease;
     }
+
     section[data-testid="stSidebar"] {
         background: rgba(15, 12, 41, 0.6);
         backdrop-filter: blur(12px);
         border-right: 1px solid rgba(123, 47, 247, 0.2);
     }
+
     p, li, label, .stMarkdown {
         color: #d0d0e8;
     }
@@ -172,75 +175,10 @@ def load_global_css():
     """, unsafe_allow_html=True)
 
 
-def show_landing_page():
-    """Displays the animated welcome screen."""
-    
-    # CSS specifically to hide the sidebar and top header on the landing page
-    st.markdown("""
-    <style>
-    [data-testid="stSidebar"] { display: none; }
-    [data-testid="collapsedControl"] { display: none; }
-    header { display: none; }
-    
-    .landing-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 75vh;
-        text-align: center;
-        animation: fadeIn 2s ease-in-out;
-    }
-    
-    .landing-title {
-        font-size: 5.5rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0px;
-        line-height: 1.2;
-        animation: float 4s ease-in-out infinite;
-    }
-    
-    .landing-subtitle {
-        font-size: 1.5rem;
-        color: #d0d0e8;
-        margin-top: 15px;
-        margin-bottom: 50px;
-        font-weight: 300;
-    }
+def main():
+    load_css()
 
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-15px); }
-        100% { transform: translateY(0px); }
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-    }
-    </style>
-    
-    <div class="landing-container">
-        <h1 class="landing-title">🌐 Universal File Translator</h1>
-        <p class="landing-subtitle">Break language barriers instantly. Fast, accurate, and preserves your formatting.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Center the Let's Go button
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col2:
-        if st.button("🚀 Let's Go", use_container_width=True):
-            st.session_state.app_started = True
-            st.rerun()
-
-
-def show_main_app():
-    """Displays the main translation tool."""
-    
-    st.markdown("<h1 class='app-title'>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
+    st.markdown("<h1>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
         "translate it into your preferred language and download it "
@@ -251,11 +189,6 @@ def show_main_app():
 
     # ─── Sidebar Settings ──────────────────────────────────────────
     with st.sidebar:
-        # Back to Home Button
-        if st.button("🏠 Back to Home"):
-            st.session_state.app_started = False
-            st.rerun()
-            
         st.markdown("## ⚙️ Translation Settings")
 
         target_lang_name = st.selectbox(
@@ -277,19 +210,6 @@ def show_main_app():
             "🤖 Translation Engine",
             ['Google Translate (Free)', 'MyMemory (Free)']
         )
-        
-        st.markdown("---")
-        st.markdown("### 📂 Supported Formats")
-        format_groups = {
-            "📄 Documents": [".docx", ".pdf", ".txt", ".rtf", ".md"],
-            "📊 Spreadsheets": [".xlsx", ".xls", ".csv"],
-            "📑 Presentations": [".pptx"],
-            "🖼️ Images (OCR)": [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"],
-            "🎬 Subtitles": [".srt", ".vtt"],
-            "🔧 Data / Web": [".json", ".xml", ".html"],
-        }
-        for group, exts in format_groups.items():
-            st.markdown(f"**{group}**  \n<small style='color:#9090b0;'>{', '.join(exts)}</small>", unsafe_allow_html=True)
 
     # ─── File Upload ───────────────────────────────────────────────
     uploaded_file = st.file_uploader(
@@ -404,6 +324,7 @@ def show_main_app():
 
             st.markdown("#### 💾 Specify Download Filename")
             
+            # Text box for custom file name
             custom_filename = st.text_input(
                 "Type the filename you want to save as:",
                 value=st.session_state.default_name,
@@ -416,6 +337,7 @@ def show_main_app():
             for ch in r'\/:*?"<>|':
                 custom_filename = custom_filename.replace(ch, "_")
 
+            # Enforce extension
             target_ext = st.session_state.target_ext
             if not custom_filename.lower().endswith(target_ext.lower()):
                 custom_filename = str(Path(custom_filename).stem) + target_ext
@@ -434,19 +356,6 @@ def show_main_app():
                 f"Target: {st.session_state.target_lang_name}"
             )
 
-def main():
-    # Load the basic styling for the app
-    load_global_css()
-
-    # Initialize the app state
-    if 'app_started' not in st.session_state:
-        st.session_state.app_started = False
-
-    # Route to the correct screen based on the state
-    if not st.session_state.app_started:
-        show_landing_page()
-    else:
-        show_main_app()
 
 if __name__ == "__main__":
     main()
