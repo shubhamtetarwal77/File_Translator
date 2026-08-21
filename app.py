@@ -81,14 +81,12 @@ def load_css():
     """Inject custom CSS for a modern, polished look."""
     st.markdown("""
     <style>
-    /* Import Google Font */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap');
 
     html, body, [class*="css"] {
         font-family: 'Poppins', sans-serif;
     }
 
-    /* Animated gradient background */
     .stApp {
         background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e);
         background-size: 400% 400%;
@@ -100,7 +98,6 @@ def load_css():
         100% { background-position: 0% 50%; }
     }
 
-    /* Main title gradient text */
     h1 {
         background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
         -webkit-background-clip: text;
@@ -111,7 +108,6 @@ def load_css():
         text-align: center;
     }
 
-    /* Subtitle text */
     .subtitle {
         text-align: center;
         color: #b0b0d0;
@@ -119,7 +115,6 @@ def load_css():
         margin-bottom: 1rem;
     }
 
-    /* Glassmorphism cards for st.info */
     div[data-testid="stAlert"] {
         background: rgba(255, 255, 255, 0.06) !important;
         border: 1px solid rgba(123, 47, 247, 0.3) !important;
@@ -128,7 +123,6 @@ def load_css():
         color: #e0e0f0 !important;
     }
 
-    /* Primary buttons */
     div.stButton > button:first-child {
         background: linear-gradient(90deg, #7b2ff7, #00d4ff);
         color: white;
@@ -145,7 +139,6 @@ def load_css():
         box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
     }
 
-    /* Download button */
     .stDownloadButton > button {
         background: linear-gradient(90deg, #11998e, #38ef7d) !important;
         color: white !important;
@@ -161,7 +154,6 @@ def load_css():
         box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6) !important;
     }
 
-    /* File uploader dropzone */
     [data-testid="stFileUploaderDropzone"] {
         background: rgba(255, 255, 255, 0.04);
         border: 2px dashed #7b2ff7;
@@ -169,47 +161,13 @@ def load_css():
         padding: 25px;
         transition: all 0.3s ease;
     }
-    [data-testid="stFileUploaderDropzone"]:hover {
-        border-color: #00d4ff;
-        background: rgba(123, 47, 247, 0.08);
-    }
 
-    /* Sidebar styling */
     section[data-testid="stSidebar"] {
         background: rgba(15, 12, 41, 0.6);
         backdrop-filter: blur(12px);
         border-right: 1px solid rgba(123, 47, 247, 0.2);
     }
 
-    /* Selectboxes */
-    div[data-baseweb="select"] > div {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(123, 47, 247, 0.3);
-    }
-
-    /* Metric cards */
-    div[data-testid="stMetric"] {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(0, 212, 255, 0.3);
-        border-radius: 16px;
-        padding: 16px;
-        backdrop-filter: blur(8px);
-    }
-
-    /* Progress bar */
-    .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, #7b2ff7, #00d4ff);
-    }
-
-    /* Divider */
-    hr {
-        border: none;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #7b2ff7, transparent);
-    }
-
-    /* Text color fix */
     p, li, label, .stMarkdown {
         color: #d0d0e8;
     }
@@ -218,16 +176,14 @@ def load_css():
 
 
 def main():
-    # ─── Load Custom Styling ───────────────────────────────────────
     load_css()
 
-    # ─── Header ────────────────────────────────────────────────────
     st.markdown("<h1>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
-        "translate it into your preferred language and download it <b>in the exact same format</b> "
-         "(<i>Note: PDFs will be converted to DOCX</i>).</p>",
-         unsafe_allow_html=True
+        "translate it into your preferred language and download it "
+        "(<i>Note: PDFs will be converted to DOCX</i>).</p>",
+        unsafe_allow_html=True
     )
     st.divider()
 
@@ -238,47 +194,22 @@ def main():
         target_lang_name = st.selectbox(
             "🎯 Target Language",
             [k for k in LANGUAGES.keys() if k != 'Auto Detect'],
-            index=0,
-            help="Choose the language you want to translate INTO"
+            index=0
         )
         target_lang = LANGUAGES[target_lang_name]
 
         source_lang_name = st.selectbox(
             "🔍 Source Language",
             list(LANGUAGES.keys()),
-            index=0,
-            help="Choose 'Auto Detect' if you're not sure"
+            index=0
         )
         source_lang = LANGUAGES[source_lang_name]
 
         st.markdown("---")
         engine_choice = st.selectbox(
             "🤖 Translation Engine",
-            ['Google Translate (Free)', 'MyMemory (Free)'],
-            help="Google: up to 5K chars/request. MyMemory: up to 5K chars/request, 5K/day anon."
+            ['Google Translate (Free)', 'MyMemory (Free)']
         )
-
-        st.markdown("---")
-        st.markdown("### 📂 Supported Formats")
-        format_groups = {
-            "📄 Documents": [".docx", ".pdf", ".txt", ".rtf", ".md"],
-            "📊 Spreadsheets": [".xlsx", ".xls", ".csv"],
-            "📑 Presentations": [".pptx"],
-            "🖼️ Images (OCR)": [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".webp"],
-            "🎬 Subtitles": [".srt", ".vtt"],
-            "🔧 Data / Web": [".json", ".xml", ".html"],
-        }
-        for group, exts in format_groups.items():
-            st.markdown(f"**{group}**  \n<small style='color:#9090b0;'>{', '.join(exts)}</small>", unsafe_allow_html=True)
-
-        st.markdown("---")
-        st.markdown(
-            "<small>⚡ Powered by <a href='https://github.com/nidhaloff/deep-translator'>deep-translator</a>, "
-            "<a href='https://pymupdf.readthedocs.io/'>PyMuPDF</a>, "
-            "<a href='https://python-docx.readthedocs.io/'>python-docx</a>, and more.</small>",
-            unsafe_allow_html=True
-        )
-        st.markdown("<br><center><small>Made with ❤️ using Streamlit</small></center>", unsafe_allow_html=True)
 
     # ─── File Upload ───────────────────────────────────────────────
     uploaded_file = st.file_uploader(
@@ -290,13 +221,15 @@ def main():
     if uploaded_file is not None:
         file_ext = Path(uploaded_file.name).suffix.lower()
 
-        # Validate extension
         if file_ext not in SUPPORTED_EXTENSIONS:
             st.error(f"❌ Unsupported file format: `{file_ext}`")
-            st.info(f"✅ Supported formats: {', '.join(SUPPORTED_EXTENSIONS)}")
             return
 
-        st.toast(f"'{uploaded_file.name}' uploaded successfully! 🎉")
+        # Reset session state if a new file is uploaded
+        if 'uploaded_filename' not in st.session_state or st.session_state.uploaded_filename != uploaded_file.name:
+            st.session_state.uploaded_filename = uploaded_file.name
+            st.session_state.translation_done = False
+            st.session_state.translated_bytes = None
 
         # ─── File Info Display ─────────────────────────────────────
         icon = FILE_TYPE_ICONS.get(file_ext, '📁')
@@ -310,7 +243,6 @@ def main():
 
         # ─── Translate Button ──────────────────────────────────────
         if st.button("🚀 Translate Now", type="primary", use_container_width=True):
-            # Initialize translator
             engine_type = 'google' if 'Google' in engine_choice else 'mymemory'
 
             try:
@@ -323,23 +255,19 @@ def main():
                 st.error(f"Failed to initialize translator: {e}")
                 return
 
-            # Save uploaded file to temp location
             with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_input:
                 tmp_input.write(uploaded_file.getvalue())
                 input_path = tmp_input.name
 
-            # Force output extension to .docx if the input was a PDF
             target_ext = ".docx" if file_ext == ".pdf" else file_ext
             output_path = input_path.replace(file_ext, f"_translated{target_ext}")
 
             try:
-                # Get handler
                 handler = get_handler(file_ext)
                 if handler is None:
                     st.error(f"No handler available for `{file_ext}` files.")
                     return
 
-                # Progress tracking
                 progress_bar = st.progress(0, text="Starting translation...")
                 status_text = st.empty()
 
@@ -350,7 +278,6 @@ def main():
                 start_time = time.time()
 
                 with st.spinner("🔄 Translating your file... please wait"):
-                    # Perform translation
                     handler.translate(
                         input_path=input_path,
                         output_path=output_path,
@@ -359,76 +286,75 @@ def main():
                     )
 
                 elapsed = time.time() - start_time
-
                 progress_bar.progress(100)
                 status_text.text(f"✅ Translation completed in {elapsed:.1f}s!")
 
-                # Read translated file
+                # Store translated file and metadata in Session State
                 with open(output_path, 'rb') as f:
-                    translated_data = f.read()
+                    st.session_state.translated_bytes = f.read()
 
-                # Default name (PDF → .docx already handled via target_ext)
-                default_name = f"{Path(uploaded_file.name).stem}_{target_lang}{target_ext}"
-
+                st.session_state.target_ext = target_ext
+                st.session_state.default_name = f"{Path(uploaded_file.name).stem}_{target_lang}{target_ext}"
+                st.session_state.elapsed = elapsed
+                st.session_state.engine_choice = engine_choice
+                st.session_state.target_lang_name = target_lang_name
+                st.session_state.translation_done = True
                 st.balloons()
-                st.markdown("---")
-                st.markdown("### 🎉 Translation Complete!")
-
-                col_dl1, col_dl2 = st.columns(2)
-                with col_dl1:
-                    st.metric("Original Size", format_file_size(uploaded_file.size))
-                with col_dl2:
-                    st.metric("Translated Size", format_file_size(len(translated_data)))
-
-                # ─── Custom download filename ─────────────────────────
-                st.markdown("#### 💾 Choose download name")
-                custom_name = st.text_input(
-                    "File name (without worrying about path)",
-                    value=default_name,
-                    help="Change the name if you want. Extension is added automatically if missing.",
-                    key="download_filename_input",
-                )
-
-                # Clean name + ensure correct extension
-                custom_name = (custom_name or default_name).strip()
-                # Remove illegal path characters
-                for ch in r'\/:*?"<>|':
-                    custom_name = custom_name.replace(ch, "_")
-
-                if not custom_name.lower().endswith(target_ext.lower()):
-                    # If user typed another extension, strip it and force correct one
-                    custom_name = str(Path(custom_name).stem) + target_ext
-
-                output_filename = custom_name
-
-                st.download_button(
-                    label=f"📥 Download — {output_filename}",
-                    data=translated_data,
-                    file_name=output_filename,
-                    mime="application/octet-stream",
-                    use_container_width=True,
-                    key="download_translated_btn",
-                )
-
-                st.caption(
-                    f"⏱️ Time: {elapsed:.1f}s | "
-                    f"Engine: {engine_choice} | "
-                    f"Target: {target_lang_name}"
-                )
 
             except Exception as e:
                 st.error(f"❌ Translation failed: {str(e)}")
-                with st.expander("🔍 Error Details"):
-                    st.exception(e)
-
             finally:
-                # Cleanup temp files
                 for path in [input_path, output_path]:
                     try:
                         if os.path.exists(path):
                             os.unlink(path)
                     except OSError:
                         pass
+
+        # ─── Display Download UI (Persists across user typing) ─────
+        if st.session_state.get('translation_done', False):
+            st.markdown("---")
+            st.markdown("### 🎉 Translation Complete!")
+
+            col_dl1, col_dl2 = st.columns(2)
+            with col_dl1:
+                st.metric("Original Size", format_file_size(uploaded_file.size))
+            with col_dl2:
+                st.metric("Translated Size", format_file_size(len(st.session_state.translated_bytes)))
+
+            st.markdown("#### 💾 Specify Download Filename")
+            
+            # Text box for custom file name
+            custom_filename = st.text_input(
+                "Type the filename you want to save as:",
+                value=st.session_state.default_name,
+                key="custom_name_input",
+                help="You can change this filename before clicking download."
+            )
+
+            # Clean and sanitize the filename
+            custom_filename = (custom_filename or st.session_state.default_name).strip()
+            for ch in r'\/:*?"<>|':
+                custom_filename = custom_filename.replace(ch, "_")
+
+            # Enforce extension
+            target_ext = st.session_state.target_ext
+            if not custom_filename.lower().endswith(target_ext.lower()):
+                custom_filename = str(Path(custom_filename).stem) + target_ext
+
+            st.download_button(
+                label=f"📥 Download File as: {custom_filename}",
+                data=st.session_state.translated_bytes,
+                file_name=custom_filename,
+                mime="application/octet-stream",
+                use_container_width=True
+            )
+
+            st.caption(
+                f"⏱️ Time: {st.session_state.elapsed:.1f}s | "
+                f"Engine: {st.session_state.engine_choice} | "
+                f"Target: {st.session_state.target_lang_name}"
+            )
 
 
 if __name__ == "__main__":
