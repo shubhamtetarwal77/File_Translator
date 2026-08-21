@@ -17,7 +17,7 @@ st.set_page_config(
     page_title="Universal File Translator",
     page_icon="🌐",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded"  # Forces sidebar to start expanded
 )
 
 # ─── Language Mapping ──────────────────────────────────────────────
@@ -134,19 +134,39 @@ def load_global_css():
         margin-bottom: 1rem;
     }
     
-    /* Hide top bar */
+    /* Hide top header bar (the white space at the top) */
     header { display: none !important; }
+
+    /* ════════════════════════════════════════════════════════════
+       LOCK SIDEBAR — Hide minimize button, keep it styled globally
+       ════════════════════════════════════════════════════════════ */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+    
+    section[data-testid="stSidebar"] {
+        background: rgba(15, 12, 41, 0.6);
+        backdrop-filter: blur(12px);
+        border-right: 1px solid rgba(123, 47, 247, 0.2);
+    }
+
+    /* Force hide the inner close "X" button if it appears */
+    [data-testid="stSidebarCollapseButton"] {
+        display: none !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
 
 def show_landing_page():
-    """Displays the animated welcome screen."""
+    """Displays the beautiful animated landing screen."""
     
-    # Custom CSS for the landing page visuals
+    # Custom CSS for the landing page visuals (Completely hides sidebar here)
     st.markdown("""
     <style>
-    [data-testid="stSidebar"] { display: none; }
+    [data-testid="stSidebar"] { 
+        display: none !important; 
+    }
     
     .map-container {
         position: relative;
@@ -213,7 +233,7 @@ def show_landing_page():
     col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1, 1.5])
     with col_btn2:
         st.write("") # spacing
-        if st.button("Open Translator", use_container_width=True):
+        if st.button("🚀 Open Translator", use_container_width=True):
             st.session_state.app_started = True
             st.rerun()
 
@@ -266,7 +286,7 @@ def show_landing_page():
 
     st.write("<br><br>", unsafe_allow_html=True)
 
-    # 4. Images with updated use_container_width
+    # 4. Images
     col_img1, col_img2 = st.columns(2)
     with col_img1:
         st.image("https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="Collaborate across borders.", use_container_width=True)
