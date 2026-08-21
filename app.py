@@ -223,11 +223,12 @@ def main():
 
     # ─── Header ────────────────────────────────────────────────────
     st.markdown("<h1>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
-    st.markdown(
-        "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
-        "translate it into your preferred language and download it <b>in the exact same format</b>.</p>",
-        unsafe_allow_html=True
-    )
+        st.markdown(
+            "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
+            "translate it into your preferred language and download it <b>in the exact same format</b> "
+            "(<i>Note: PDFs will be converted to DOCX</i>).</p>",
+            unsafe_allow_html=True
+        )
     st.divider()
 
     # ─── Sidebar Settings ──────────────────────────────────────────
@@ -327,7 +328,9 @@ def main():
                 tmp_input.write(uploaded_file.getvalue())
                 input_path = tmp_input.name
 
-            output_path = input_path.replace(file_ext, f"_translated{file_ext}")
+            # Force output extension to .docx if the input was a PDF
+            target_ext = ".docx" if file_ext == ".pdf" else file_ext
+            output_path = input_path.replace(file_ext, f"_translated{target_ext}")
 
             try:
                 # Get handler
@@ -364,7 +367,8 @@ def main():
                 with open(output_path, 'rb') as f:
                     translated_data = f.read()
 
-                output_filename = f"{Path(uploaded_file.name).stem}_{target_lang}{file_ext}"
+                # Ensure the download filename uses the correct extension
+                output_filename = f"{Path(uploaded_file.name).stem}_{target_lang}{target_ext}"
 
                 st.balloons()
                 st.markdown("---")
