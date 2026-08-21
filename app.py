@@ -141,7 +141,7 @@ def load_global_css():
 
 
 def show_landing_page():
-    """Displays the beautiful animated landing screen."""
+    """Displays the animated welcome screen."""
     
     # Custom CSS for the landing page visuals
     st.markdown("""
@@ -232,7 +232,7 @@ def show_landing_page():
 
     st.divider()
 
-    # 3. Why Translation Matters (Value Proposition)
+    # 3. Why Translation Matters
     st.markdown("<h2 style='text-align:center; margin-bottom: 30px; color: #fff;'>The Power of Understanding</h2>", unsafe_allow_html=True)
     
     col_feat1, col_feat2, col_feat3 = st.columns(3)
@@ -266,12 +266,12 @@ def show_landing_page():
 
     st.write("<br><br>", unsafe_allow_html=True)
 
-    # 4. Stunning Visual Separator / Inspirational Imagery
+    # 4. Images with updated use_container_width
     col_img1, col_img2 = st.columns(2)
     with col_img1:
-        st.image("https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="Collaborate across borders.", use_column_width=True)
+        st.image("https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="Collaborate across borders.", use_container_width=True)
     with col_img2:
-        st.image("https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="A connected world.", use_column_width=True)
+        st.image("https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="A connected world.", use_container_width=True)
 
     st.write("<br><br>", unsafe_allow_html=True)
 
@@ -290,7 +290,6 @@ def show_main_app():
 
     # ─── Sidebar Settings ──────────────────────────────────────────
     with st.sidebar:
-        # Back to Home Button
         if st.button("🏠 Back to Home Screen"):
             st.session_state.app_started = False
             st.rerun()
@@ -344,7 +343,6 @@ def show_main_app():
             st.error(f"❌ Unsupported file format: `{file_ext}`")
             return
 
-        # Reset session state if a new file is uploaded
         if 'uploaded_filename' not in st.session_state or st.session_state.uploaded_filename != uploaded_file.name:
             st.session_state.uploaded_filename = uploaded_file.name
             st.session_state.translation_done = False
@@ -408,7 +406,6 @@ def show_main_app():
                 progress_bar.progress(100)
                 status_text.text(f"✅ Translation completed in {elapsed:.1f}s!")
 
-                # Store translated file and metadata in Session State
                 with open(output_path, 'rb') as f:
                     st.session_state.translated_bytes = f.read()
 
@@ -430,7 +427,7 @@ def show_main_app():
                     except OSError:
                         pass
 
-        # ─── Display Download UI (Persists across user typing) ─────
+        # ─── Display Download UI ───────────────────────────────────
         if st.session_state.get('translation_done', False):
             st.markdown("---")
             st.markdown("### 🎉 Translation Complete!")
@@ -450,7 +447,6 @@ def show_main_app():
                 help="You can change this filename before clicking download."
             )
 
-            # Clean and sanitize the filename
             custom_filename = (custom_filename or st.session_state.default_name).strip()
             for ch in r'\/:*?"<>|':
                 custom_filename = custom_filename.replace(ch, "_")
@@ -474,14 +470,11 @@ def show_main_app():
             )
 
 def main():
-    # Load the basic styling for the app
     load_global_css()
 
-    # Initialize the app state
     if 'app_started' not in st.session_state:
         st.session_state.app_started = False
 
-    # Route to the correct screen based on the state
     if not st.session_state.app_started:
         show_landing_page()
     else:
