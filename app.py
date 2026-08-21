@@ -159,139 +159,744 @@ def load_global_css():
 
 
 def show_landing_page():
-    """Displays the beautiful animated landing screen."""
-    
-    # Custom CSS for the landing page visuals (Completely hides sidebar here)
+    """Displays an advanced animated landing screen."""
+
     st.markdown("""
     <style>
+    /* Hide sidebar only on landing page */
     [data-testid="stSidebar"] { 
         display: none !important; 
     }
-    
+
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+
+    /* Landing page full width */
+    .main .block-container {
+        max-width: 100% !important;
+        padding-top: 2rem !important;
+        padding-left: 3rem !important;
+        padding-right: 3rem !important;
+    }
+
+    /* Floating animated background particles */
+    .landing-bg {
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: rgba(0, 212, 255, 0.7);
+        border-radius: 50%;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.9);
+        animation: floatParticle 12s linear infinite;
+    }
+
+    .particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 13s; }
+    .particle:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 16s; }
+    .particle:nth-child(3) { left: 30%; animation-delay: 4s; animation-duration: 11s; }
+    .particle:nth-child(4) { left: 45%; animation-delay: 1s; animation-duration: 15s; }
+    .particle:nth-child(5) { left: 60%; animation-delay: 3s; animation-duration: 12s; }
+    .particle:nth-child(6) { left: 72%; animation-delay: 5s; animation-duration: 17s; }
+    .particle:nth-child(7) { left: 85%; animation-delay: 2.5s; animation-duration: 14s; }
+
+    @keyframes floatParticle {
+        0% {
+            top: 110%;
+            opacity: 0;
+            transform: translateX(0) scale(0.8);
+        }
+        15% {
+            opacity: 1;
+        }
+        50% {
+            transform: translateX(60px) scale(1.2);
+        }
+        100% {
+            top: -10%;
+            opacity: 0;
+            transform: translateX(-60px) scale(0.6);
+        }
+    }
+
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        z-index: 2;
+        min-height: 78vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 3rem 1rem 1rem 1rem;
+    }
+
+    .hero-glow {
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        background: radial-gradient(circle, rgba(123,47,247,0.45), transparent 65%);
+        filter: blur(20px);
+        animation: pulseGlow 5s ease-in-out infinite;
+        z-index: -1;
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { transform: scale(1); opacity: 0.7; }
+        50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .hero-kicker {
+        display: inline-block;
+        padding: 10px 22px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(0,212,255,0.35);
+        color: #00d4ff;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 18px;
+        animation: fadeSlideDown 1s ease forwards;
+    }
+
+    .hero-title {
+        font-size: clamp(3rem, 8vw, 6.5rem);
+        line-height: 1.05;
+        margin: 0;
+        font-weight: 900;
+        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0, #00d4ff);
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientMove 5s ease infinite, fadeSlideUp 1.2s ease forwards;
+    }
+
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .hero-subtitle {
+        max-width: 900px;
+        margin: 24px auto 18px auto;
+        font-size: 1.35rem;
+        color: #d4d4f5;
+        line-height: 1.7;
+        animation: fadeIn 1.8s ease forwards;
+    }
+
+    .hero-highlight {
+        color: #00d4ff;
+        font-weight: 700;
+    }
+
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(35px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeSlideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Scroll cue */
+    .scroll-cue {
+        margin-top: 30px;
+        color: #9090b0;
+        font-size: 0.95rem;
+        animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(10px); }
+    }
+
+    /* Language marquee */
+    .language-ribbon {
+        position: relative;
+        z-index: 2;
+        overflow: hidden;
+        white-space: nowrap;
+        margin: 20px 0 50px 0;
+        padding: 16px 0;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255,255,255,0.03);
+    }
+
+    .ribbon-track {
+        display: inline-block;
+        animation: marquee 28s linear infinite;
+    }
+
+    .ribbon-track span {
+        display: inline-block;
+        margin: 0 30px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #ffffff;
+        opacity: 0.9;
+    }
+
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+    }
+
+    /* Map Section */
+    .map-section {
+        position: relative;
+        z-index: 2;
+        margin-top: 20px;
+        padding: 20px 0 60px 0;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2.7rem;
+        color: #ffffff;
+        margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+        text-align: center;
+        color: #b0b0d0;
+        font-size: 1.1rem;
+        max-width: 850px;
+        margin: 0 auto 35px auto;
+        line-height: 1.7;
+    }
+
     .map-container {
         position: relative;
         width: 100%;
-        height: 500px;
+        height: 560px;
         background: url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg') no-repeat center center;
         background-size: contain;
-        opacity: 0.85;
-        margin-top: 30px;
-        margin-bottom: 50px;
-        filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2));
+        opacity: 0.95;
+        margin-top: 20px;
+        margin-bottom: 30px;
+        filter: drop-shadow(0 0 35px rgba(0, 212, 255, 0.25));
+    }
+
+    .map-container::before {
+        content: "";
+        position: absolute;
+        inset: 8%;
+        border: 1px solid rgba(0, 212, 255, 0.25);
+        border-radius: 50%;
+        animation: rotateRing 18s linear infinite;
+    }
+
+    .map-container::after {
+        content: "";
+        position: absolute;
+        inset: 14%;
+        border: 1px dashed rgba(255, 47, 208, 0.25);
+        border-radius: 50%;
+        animation: rotateRingReverse 26s linear infinite;
+    }
+
+    @keyframes rotateRing {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @keyframes rotateRingReverse {
+        from { transform: rotate(360deg); }
+        to { transform: rotate(0deg); }
     }
 
     .floating-lang {
         position: absolute;
-        font-weight: 700;
-        font-size: 1.5rem;
-        padding: 8px 16px;
-        border-radius: 20px;
-        background: rgba(15, 12, 41, 0.8);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        font-weight: 800;
+        font-size: 1.35rem;
+        padding: 9px 18px;
+        border-radius: 22px;
+        background: rgba(15, 12, 41, 0.82);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.38);
         color: white;
+        z-index: 5;
     }
 
-    /* Coordinates and animations for floating languages */
-    .lang-en { top: 25%; left: 15%; color: #00d4ff; animation: float 4s ease-in-out infinite; } /* North America */
-    .lang-es { top: 60%; left: 25%; color: #ff2fd0; animation: float 5s ease-in-out infinite 0.5s; } /* South America */
-    .lang-fr { top: 30%; left: 45%; color: #7b2ff7; animation: float 6s ease-in-out infinite 1s; } /* Europe */
-    .lang-ar { top: 45%; left: 55%; color: #00ffcc; animation: float 4.5s ease-in-out infinite 1.5s; } /* Middle East */
-    .lang-hi { top: 45%; left: 68%; color: #ffaa00; animation: float 5.5s ease-in-out infinite 0.2s; } /* India */
-    .lang-ja { top: 35%; left: 82%; color: #ff5555; animation: float 4s ease-in-out infinite 0.8s; } /* Japan */
-    .lang-sw { top: 65%; left: 52%; color: #aaff00; animation: float 5s ease-in-out infinite 1.2s; } /* Africa */
+    .floating-lang::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: -12px;
+        width: 10px;
+        height: 10px;
+        background: currentColor;
+        border-radius: 50%;
+        box-shadow: 0 0 18px currentColor;
+    }
+
+    .lang-en { top: 24%; left: 15%; color: #00d4ff; animation: float 4s ease-in-out infinite; }
+    .lang-es { top: 61%; left: 25%; color: #ff2fd0; animation: float 5s ease-in-out infinite 0.5s; }
+    .lang-fr { top: 30%; left: 45%; color: #7b2ff7; animation: float 6s ease-in-out infinite 1s; }
+    .lang-ar { top: 46%; left: 55%; color: #00ffcc; animation: float 4.5s ease-in-out infinite 1.5s; }
+    .lang-hi { top: 47%; left: 68%; color: #ffaa00; animation: float 5.5s ease-in-out infinite 0.2s; }
+    .lang-ja { top: 35%; left: 82%; color: #ff5555; animation: float 4s ease-in-out infinite 0.8s; }
+    .lang-sw { top: 66%; left: 52%; color: #aaff00; animation: float 5s ease-in-out infinite 1.2s; }
 
     @keyframes float {
         0% { transform: translateY(0px) scale(1); }
-        50% { transform: translateY(-20px) scale(1.05); }
+        50% { transform: translateY(-20px) scale(1.06); }
         100% { transform: translateY(0px) scale(1); }
     }
 
-    .feature-card {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(123, 47, 247, 0.3);
-        border-radius: 15px;
-        padding: 25px;
-        height: 100%;
-        text-align: center;
-        transition: transform 0.3s;
+    /* Animated connection lines */
+    .route {
+        position: absolute;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #00d4ff, #ff2fd0, transparent);
+        opacity: 0.6;
+        transform-origin: left center;
+        animation: routePulse 3s ease-in-out infinite;
+        z-index: 3;
     }
-    .feature-card:hover {
-        transform: translateY(-10px);
-        background: rgba(255,255,255,0.06);
+
+    .route-1 { width: 260px; top: 34%; left: 25%; transform: rotate(8deg); }
+    .route-2 { width: 320px; top: 43%; left: 48%; transform: rotate(18deg); animation-delay: 0.7s; }
+    .route-3 { width: 230px; top: 58%; left: 42%; transform: rotate(-22deg); animation-delay: 1.2s; }
+    .route-4 { width: 270px; top: 48%; left: 18%; transform: rotate(32deg); animation-delay: 1.8s; }
+
+    @keyframes routePulse {
+        0%, 100% { opacity: 0.2; filter: blur(0); }
+        50% { opacity: 1; filter: blur(1px); }
+    }
+
+    /* Cards */
+    .impact-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin: 50px 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .impact-card {
+        background: rgba(255,255,255,0.045);
+        border: 1px solid rgba(123, 47, 247, 0.35);
+        border-radius: 22px;
+        padding: 32px;
+        text-align: center;
+        min-height: 250px;
+        transition: all 0.35s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .impact-card::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        left: -80px;
+        width: 160px;
+        height: 160px;
+        background: radial-gradient(circle, rgba(0,212,255,0.25), transparent 65%);
+        transition: 0.4s;
+    }
+
+    .impact-card:hover {
+        transform: translateY(-12px) scale(1.02);
         border-color: #00d4ff;
+        box-shadow: 0 18px 50px rgba(0,212,255,0.18);
+        background: rgba(255,255,255,0.075);
+    }
+
+    .impact-card:hover::before {
+        transform: scale(1.8);
+    }
+
+    .impact-icon {
+        font-size: 3.3rem;
+        margin-bottom: 12px;
+        animation: iconFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+    }
+
+    .impact-card h3 {
+        margin: 8px 0 12px 0;
+        font-size: 1.45rem;
+    }
+
+    .impact-card p {
+        color: #b0b0d0;
+        line-height: 1.65;
+        font-size: 1rem;
+    }
+
+    /* Timeline */
+    .journey {
+        margin: 60px 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .journey-steps {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-top: 30px;
+    }
+
+    .step-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        padding: 24px;
+        text-align: center;
+        transition: 0.3s ease;
+    }
+
+    .step-card:hover {
+        transform: translateY(-8px);
+        border-color: #ff2fd0;
+        box-shadow: 0 15px 40px rgba(255,47,208,0.14);
+    }
+
+    .step-number {
+        width: 42px;
+        height: 42px;
+        margin: 0 auto 14px auto;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #7b2ff7, #00d4ff);
+        color: white;
+        font-weight: 800;
+    }
+
+    .step-card h4 {
+        color: white;
+        margin-bottom: 8px;
+    }
+
+    .step-card p {
+        color: #b0b0d0;
+        font-size: 0.95rem;
+        line-height: 1.55;
+    }
+
+    /* Photo storytelling */
+    .photo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 26px;
+        margin: 50px 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .photo-card {
+        position: relative;
+        min-height: 330px;
+        border-radius: 26px;
+        overflow: hidden;
+        border: 1px solid rgba(255,255,255,0.15);
+        background-size: cover;
+        background-position: center;
+        transition: 0.45s ease;
+    }
+
+    .photo-card:hover {
+        transform: scale(1.025);
+        box-shadow: 0 22px 60px rgba(0,0,0,0.45);
+    }
+
+    .photo-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, transparent, rgba(0,0,0,0.78));
+    }
+
+    .photo-content {
+        position: absolute;
+        left: 28px;
+        right: 28px;
+        bottom: 28px;
+    }
+
+    .photo-content h3 {
+        color: white;
+        font-size: 1.7rem;
+        margin-bottom: 8px;
+    }
+
+    .photo-content p {
+        color: #d6d6ec;
+        line-height: 1.55;
+    }
+
+    .photo-1 {
+        background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80');
+    }
+
+    .photo-2 {
+        background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80');
+    }
+
+    /* Final CTA */
+    .final-cta {
+        text-align: center;
+        padding: 60px 20px 25px 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .final-cta h2 {
+        color: white;
+        font-size: 2.7rem;
+        margin-bottom: 12px;
+    }
+
+    .final-cta p {
+        color: #b0b0d0;
+        font-size: 1.15rem;
+        max-width: 750px;
+        margin: 0 auto 25px auto;
+        line-height: 1.7;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .impact-grid,
+        .journey-steps,
+        .photo-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .map-container {
+            height: 420px;
+        }
+
+        .floating-lang {
+            font-size: 0.95rem;
+            padding: 7px 12px;
+        }
+
+        .route {
+            display: none;
+        }
+
+        .hero-subtitle {
+            font-size: 1.05rem;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # 1. Main Hero Header
-    st.markdown("<h1 class='app-title' style='font-size: 4.5rem !important; margin-top:20px;'>Break Language Barriers</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='subtitle'>The world is connected. Your files should be too. Translate entire documents, spreadsheets, and presentations while keeping the exact same layout.</p>", unsafe_allow_html=True)
-
-    # Big Call to Action Button
-    col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1, 1.5])
-    with col_btn2:
-        st.write("") # spacing
-        if st.button("🚀 Open Translator", use_container_width=True):
-            st.session_state.app_started = True
-            st.rerun()
-
-    # 2. Interactive Animated World Map
+    # Animated particles
     st.markdown("""
-    <div class="map-container">
-        <div class="floating-lang lang-en">Hello 👋</div>
-        <div class="floating-lang lang-es">Hola 💃</div>
-        <div class="floating-lang lang-fr">Bonjour 🥐</div>
-        <div class="floating-lang lang-ar">مرحباً 🕌</div>
-        <div class="floating-lang lang-hi">नमस्ते 🪷</div>
-        <div class="floating-lang lang-ja">こんにちは 🌸</div>
-        <div class="floating-lang lang-sw">Jambo 🌍</div>
+    <div class="landing-bg">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.divider()
+    # Hero
+    st.markdown("""
+    <section class="hero-section">
+        <div class="hero-glow"></div>
+        <div>
+            <div class="hero-kicker">🌐 AI-Powered Universal File Translation</div>
+            <h1 class="hero-title">Every Language<br>Every File<br>One World</h1>
+            <p class="hero-subtitle">
+                Translation is not just changing words. It helps people do business, learn, travel,
+                share culture, understand research, and connect across borders.
+                Upload your files and turn them into a language your audience understands —
+                while keeping the <span class="hero-highlight">formatting, structure, and meaning</span>.
+            </p>
+            <div class="scroll-cue">Scroll to explore ↓</div>
+        </div>
+    </section>
+    """, unsafe_allow_html=True)
 
-    # 3. Why Translation Matters
-    st.markdown("<h2 style='text-align:center; margin-bottom: 30px; color: #fff;'>The Power of Understanding</h2>", unsafe_allow_html=True)
-    
-    col_feat1, col_feat2, col_feat3 = st.columns(3)
-    
-    with col_feat1:
-        st.markdown("""
-        <div class="feature-card">
-            <h1 style="font-size: 3rem; margin:0;">🌍</h1>
+    # Top CTA button
+    col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1, 1.5])
+    with col_btn2:
+        if st.button("🚀 Start Translating", use_container_width=True, key="landing_start_top"):
+            st.session_state.app_started = True
+            st.rerun()
+
+    # Language ribbon
+    st.markdown("""
+    <div class="language-ribbon">
+        <div class="ribbon-track">
+            <span>Hello</span><span>Hola</span><span>Bonjour</span><span>नमस्ते</span><span>مرحبا</span>
+            <span>こんにちは</span><span>안녕하세요</span><span>Ciao</span><span>Hallo</span><span>Olá</span>
+            <span>Привет</span><span>你好</span><span>Jambo</span><span>Merhaba</span><span>שלום</span>
+
+            <span>Hello</span><span>Hola</span><span>Bonjour</span><span>नमस्ते</span><span>مرحبا</span>
+            <span>こんにちは</span><span>안녕하세요</span><span>Ciao</span><span>Hallo</span><span>Olá</span>
+            <span>Привет</span><span>你好</span><span>Jambo</span><span>Merhaba</span><span>שלום</span>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Map section
+    st.markdown("""
+    <section class="map-section">
+        <h2 class="section-title">Languages Move the World</h2>
+        <p class="section-subtitle">
+            From a student reading foreign research, to a company sending proposals overseas,
+            to subtitles making stories accessible — translation connects people who would otherwise stay apart.
+        </p>
+
+        <div class="map-container">
+            <div class="route route-1"></div>
+            <div class="route route-2"></div>
+            <div class="route route-3"></div>
+            <div class="route route-4"></div>
+
+            <div class="floating-lang lang-en">Hello 👋</div>
+            <div class="floating-lang lang-es">Hola 💃</div>
+            <div class="floating-lang lang-fr">Bonjour 🥐</div>
+            <div class="floating-lang lang-ar">مرحباً 🕌</div>
+            <div class="floating-lang lang-hi">नमस्ते 🪷</div>
+            <div class="floating-lang lang-ja">こんにちは 🌸</div>
+            <div class="floating-lang lang-sw">Jambo 🌍</div>
+        </div>
+    </section>
+    """, unsafe_allow_html=True)
+
+    # Impact cards
+    st.markdown("""
+    <div class="impact-grid">
+        <div class="impact-card">
+            <div class="impact-icon">🌍</div>
             <h3 style="color:#00d4ff;">Global Business</h3>
-            <p style="color:#b0b0d0;">Seamlessly translate contracts, pitch decks, and financial spreadsheets. Expand your company's reach to international markets without breaking your document layouts.</p>
+            <p>
+                Translate contracts, reports, spreadsheets, and pitch decks.
+                Reach new markets without recreating your documents from scratch.
+            </p>
         </div>
-        """, unsafe_allow_html=True)
-        
-    with col_feat2:
-        st.markdown("""
-        <div class="feature-card">
-            <h1 style="font-size: 3rem; margin:0;">🤝</h1>
-            <h3 style="color:#ff2fd0;">Deep Connections</h3>
-            <p style="color:#b0b0d0;">Translate letters, subtitle files (SRT/VTT), and images. Share stories, movies, and culture with people around the world, making the planet feel a little bit smaller.</p>
+
+        <div class="impact-card">
+            <div class="impact-icon">🤝</div>
+            <h3 style="color:#ff2fd0;">Human Connection</h3>
+            <p>
+                Letters, images, subtitles, and documents become accessible to people
+                who speak different languages but share the same ideas.
+            </p>
         </div>
-        """, unsafe_allow_html=True)
-        
-    with col_feat3:
-        st.markdown("""
-        <div class="feature-card">
-            <h1 style="font-size: 3rem; margin:0;">🎓</h1>
+
+        <div class="impact-card">
+            <div class="impact-icon">🎓</div>
             <h3 style="color:#7b2ff7;">Limitless Learning</h3>
-            <p style="color:#b0b0d0;">Access research papers, academic PDFs, and historical texts originally written in foreign languages. Turn any PDF into a readable, localized Word document instantly.</p>
+            <p>
+                Research papers, PDFs, notes, and academic material can be understood
+                by students and professionals around the world.
+            </p>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.write("<br><br>", unsafe_allow_html=True)
+    # Journey / process
+    st.markdown("""
+    <section class="journey">
+        <h2 class="section-title">From File to Understanding</h2>
+        <p class="section-subtitle">
+            Your document goes through a simple journey — upload, detect, translate, and download.
+        </p>
 
-    # 4. Images
-    col_img1, col_img2 = st.columns(2)
-    with col_img1:
-        st.image("https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="Collaborate across borders.", use_container_width=True)
-    with col_img2:
-        st.image("https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="A connected world.", use_container_width=True)
+        <div class="journey-steps">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h4>Upload</h4>
+                <p>Choose DOCX, PDF, PPTX, Excel, CSV, images, subtitles, JSON, XML, HTML, or text files.</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h4>Understand</h4>
+                <p>The app reads your file content while preserving the original document structure.</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h4>Translate</h4>
+                <p>Your content is translated into the selected target language using your chosen engine.</p>
+            </div>
+
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h4>Download</h4>
+                <p>Download the translated file with your desired filename. PDFs are converted to DOCX.</p>
+            </div>
+        </div>
+    </section>
+    """, unsafe_allow_html=True)
+
+    # Photo story cards
+    st.markdown("""
+    <div class="photo-grid">
+        <div class="photo-card photo-1">
+            <div class="photo-content">
+                <h3>Teams Without Borders</h3>
+                <p>
+                    Translate proposals, presentations, and reports so global teams can work together clearly.
+                </p>
+            </div>
+        </div>
+
+        <div class="photo-card photo-2">
+            <div class="photo-content">
+                <h3>A Connected Planet</h3>
+                <p>
+                    Knowledge should not stop at language barriers. Make every document readable to more people.
+                </p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Final CTA
+    st.markdown("""
+    <div class="final-cta">
+        <h2>Ready to Translate Your World?</h2>
+        <p>
+            Start with one file. Translate it into another language. Share it with someone new.
+            That is how communication becomes connection.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_bottom1, col_bottom2, col_bottom3 = st.columns([1.5, 1, 1.5])
+    with col_bottom2:
+        if st.button("🌐 Open File Translator", use_container_width=True, key="landing_start_bottom"):
+            st.session_state.app_started = True
+            st.rerun()
 
     st.write("<br><br>", unsafe_allow_html=True)
 
