@@ -367,8 +367,8 @@ def main():
                 with open(output_path, 'rb') as f:
                     translated_data = f.read()
 
-                # Ensure the download filename uses the correct extension
-                output_filename = f"{Path(uploaded_file.name).stem}_{target_lang}{target_ext}"
+                # Default name (PDF → .docx already handled via target_ext)
+                default_name = f"{Path(uploaded_file.name).stem}_{target_lang}{target_ext}"
 
                 st.balloons()
                 st.markdown("---")
@@ -380,12 +380,34 @@ def main():
                 with col_dl2:
                     st.metric("Translated Size", format_file_size(len(translated_data)))
 
+                # ─── Custom download filename ─────────────────────────
+                st.markdown("#### 💾 Choose download name")
+                custom_name = st.text_input(
+                    "File name (without worrying about path)",
+                    value=default_name,
+                    help="Change the name if you want. Extension is added automatically if missing.",
+                    key="download_filename_input",
+                )
+
+                # Clean name + ensure correct extension
+                custom_name = (custom_name or default_name).strip()
+                # Remove illegal path characters
+                for ch in r'\/:*?"<>|':
+                    custom_name = custom_name.replace(ch, "_")
+
+                if not custom_name.lower().endswith(target_ext.lower()):
+                    # If user typed another extension, strip it and force correct one
+                    custom_name = str(Path(custom_name).stem) + target_ext
+
+                output_filename = custom_name
+
                 st.download_button(
-                    label=f"📥 Download Translated File — {output_filename}",
+                    label=f"📥 Download — {output_filename}",
                     data=translated_data,
                     file_name=output_filename,
                     mime="application/octet-stream",
-                    use_container_width=True
+                    use_container_width=True,
+                    key="download_translated_btn",
                 )
 
                 st.caption(
