@@ -223,12 +223,12 @@ def main():
 
     # ─── Header ────────────────────────────────────────────────────
     st.markdown("<h1>🌐 Universal File Translator</h1>", unsafe_allow_html=True)
-        st.markdown(
-            "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
-            "translate it into your preferred language and download it <b>in the exact same format</b> "
-            "(<i>Note: PDFs will be converted to DOCX</i>).</p>",
-            unsafe_allow_html=True
-        )
+    st.markdown(
+        "<p class='subtitle'>Upload any document, spreadsheet, presentation, image, or subtitle file — "
+        "translate it into your preferred language and download it <b>in the exact same format</b> "
+         "(<i>Note: PDFs will be converted to DOCX</i>).</p>",
+         unsafe_allow_html=True
+    )
     st.divider()
 
     # ─── Sidebar Settings ──────────────────────────────────────────
