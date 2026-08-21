@@ -17,10 +17,10 @@ st.set_page_config(
     page_title="Universal File Translator",
     page_icon="🌐",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded"  # Forces sidebar to start expanded
 )
 
-# ── Language Mapping ──────────────────────────────────────────────
+# ─── Language Mapping ──────────────────────────────────────────────
 LANGUAGES = {
     'Auto Detect': 'auto',
     'Afrikaans': 'af', 'Albanian': 'sq', 'Arabic': 'ar', 'Armenian': 'hy',
@@ -59,10 +59,10 @@ SUPPORTED_EXTENSIONS = [
 ]
 
 FILE_TYPE_ICONS = {
-    '.docx': '📄', '.pdf': '', '.xlsx': '📊', '.xls': '📊',
-    '.csv': '📊', '.pptx': '', '.txt': '📝', '.rtf': '📝',
-    '.md': '📝', '.png': '️', '.jpg': '🖼️', '.jpeg': '🖼️',
-    '.bmp': '🖼️', '.tiff': '🖼️', '.tif': '️', '.webp': '🖼️',
+    '.docx': '📄', '.pdf': '📕', '.xlsx': '📊', '.xls': '📊',
+    '.csv': '📊', '.pptx': '📑', '.txt': '📝', '.rtf': '📝',
+    '.md': '📝', '.png': '🖼️', '.jpg': '🖼️', '.jpeg': '🖼️',
+    '.bmp': '🖼️', '.tiff': '🖼️', '.tif': '🖼️', '.webp': '🖼️',
     '.srt': '🎬', '.vtt': '🎬', '.json': '🔧', '.xml': '🔧',
     '.html': '🌐', '.htm': '🌐',
 }
@@ -78,7 +78,7 @@ def format_file_size(size_bytes):
 
 
 def load_global_css():
-    """Inject global CSS with enhanced animations."""
+    """Inject global CSS that applies to both Landing Page and Main App."""
     st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@300;400;600;700;800&display=swap');
@@ -87,50 +87,19 @@ def load_global_css():
         font-family: 'Poppins', sans-serif;
     }
 
-    /* ════════════════════════════════════════════════════════════
-       ANIMATED BACKGROUND WITH PARTICLES
-       ════════════════════════════════════════════════════════════ */
+    /* Animated background */
     .stApp {
         background: linear-gradient(-45deg, #050510, #1a1a3a, #0f0f24, #050510);
         background-size: 400% 400%;
         animation: gradientShift 15s ease infinite;
-        position: relative;
-        overflow: hidden;
     }
-
     @keyframes gradientShift {
         0% { background-position: 0% 50%; }
         50% { background-position: 100% 50%; }
         100% { background-position: 0% 50%; }
     }
 
-    /* Floating particles in background */
-    .stApp::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: 
-            radial-gradient(circle at 20% 30%, rgba(123, 47, 247, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 40% 80%, rgba(255, 47, 208, 0.1) 0%, transparent 50%);
-        animation: particleFloat 20s ease-in-out infinite;
-        pointer-events: none;
-        z-index: 0;
-    }
-
-    @keyframes particleFloat {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        25% { transform: translate(30px, -30px) scale(1.1); }
-        50% { transform: translate(-20px, 20px) scale(0.9); }
-        75% { transform: translate(20px, 30px) scale(1.05); }
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       BUTTONS WITH GLOW EFFECTS
-       ════════════════════════════════════════════════════════════ */
+    /* Primary buttons */
     div.stButton > button:first-child {
         background: linear-gradient(90deg, #7b2ff7, #00d4ff);
         color: white;
@@ -141,33 +110,13 @@ def load_global_css():
         font-size: 1.1rem;
         transition: all 0.3s ease;
         box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
-        position: relative;
-        overflow: hidden;
     }
-
-    div.stButton > button:first-child::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        transition: left 0.5s ease;
-    }
-
-    div.stButton > button:first-child:hover::before {
-        left: 100%;
-    }
-
     div.stButton > button:first-child:hover {
         transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6), 0 0 20px rgba(123, 47, 247, 0.8);
+        box-shadow: 0 8px 25px rgba(0, 212, 255, 0.6);
     }
 
-    /* ════════════════════════════════════════════════════════════
-       TITLE WITH TYPING EFFECT
-       ════════════════════════════════════════════════════════════ */
+    /* App Title */
     h1.app-title {
         background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
         -webkit-background-clip: text;
@@ -177,74 +126,20 @@ def load_global_css():
         font-size: 3.5rem !important;
         text-align: center;
         margin-bottom: 0px;
-        animation: titleGlow 3s ease-in-out infinite;
     }
-
-    @keyframes titleGlow {
-        0%, 100% { filter: drop-shadow(0 0 10px rgba(123, 47, 247, 0.5)); }
-        50% { filter: drop-shadow(0 0 25px rgba(0, 212, 255, 0.8)); }
-    }
-
     .subtitle {
         text-align: center;
         color: #b0b0d0;
         font-size: 1.2rem;
         margin-bottom: 1rem;
-        animation: fadeInUp 1s ease-out;
     }
-
-    /* ════════════════════════════════════════════════════════════
-       FADE IN ANIMATIONS
-       ════════════════════════════════════════════════════════════ */
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes fadeInRight {
-        from {
-            opacity: 0;
-            transform: translateX(50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes scaleIn {
-        from {
-            opacity: 0;
-            transform: scale(0.8);
-        }
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       SIDEBAR STYLING
-       ════════════════════════════════════════════════════════════ */
+    
+    /* Hide top header bar (the white space at the top) */
     header { display: none !important; }
 
+    /* ════════════════════════════════════════════════════════════
+       LOCK SIDEBAR — Hide minimize button, keep it styled globally
+       ════════════════════════════════════════════════════════════ */
     [data-testid="collapsedControl"] {
         display: none !important;
     }
@@ -255,355 +150,92 @@ def load_global_css():
         border-right: 1px solid rgba(123, 47, 247, 0.2);
     }
 
+    /* Force hide the inner close "X" button if it appears */
     [data-testid="stSidebarCollapseButton"] {
         display: none !important;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       DOWNLOAD BUTTON
-       ════════════════════════════════════════════════════════════ */
-    .stDownloadButton > button {
-        background: linear-gradient(90deg, #11998e, #38ef7d) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 14px !important;
-        font-weight: 600 !important;
-        padding: 0.7rem 1.5rem !important;
-        box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4) !important;
-        transition: all 0.3s ease !important;
-    }
-
-    .stDownloadButton > button:hover {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 8px 25px rgba(56, 239, 125, 0.6) !important;
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       FILE UPLOADER
-       ════════════════════════════════════════════════════════════ */
-    [data-testid="stFileUploaderDropzone"] {
-        background: rgba(255, 255, 255, 0.04);
-        border: 2px dashed #7b2ff7;
-        border-radius: 18px;
-        padding: 25px;
-        transition: all 0.3s ease;
-    }
-
-    [data-testid="stFileUploaderDropzone"]:hover {
-        border-color: #00d4ff;
-        background: rgba(123, 47, 247, 0.08);
-        box-shadow: 0 0 20px rgba(123, 47, 247, 0.3);
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       TEXT COLORS
-       ════════════════════════════════════════════════════════════ */
-    p, li, label, .stMarkdown {
-        color: #d0d0e8;
     }
     </style>
     """, unsafe_allow_html=True)
 
 
 def show_landing_page():
-    """Displays the enhanced animated landing screen."""
+    """Displays the beautiful animated landing screen."""
     
+    # Custom CSS for the landing page visuals (Completely hides sidebar here)
     st.markdown("""
     <style>
-    /* Hide sidebar on landing page */
     [data-testid="stSidebar"] { 
         display: none !important; 
     }
-
-    /* ════════════════════════════════════════════════════════════
-       MAP WITH ENHANCED ANIMATIONS
-       ════════════════════════════════════════════════════════════ */
+    
     .map-container {
         position: relative;
         width: 100%;
-        height: 550px;
+        height: 500px;
         background: url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg') no-repeat center center;
         background-size: contain;
-        opacity: 0.9;
-        margin-top: 40px;
-        margin-bottom: 60px;
-        filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.3));
-        animation: mapPulse 8s ease-in-out infinite;
-    }
-
-    @keyframes mapPulse {
-        0%, 100% { filter: drop-shadow(0 0 30px rgba(0, 212, 255, 0.3)) brightness(1); }
-        50% { filter: drop-shadow(0 0 50px rgba(123, 47, 247, 0.5)) brightness(1.1); }
+        opacity: 0.85;
+        margin-top: 30px;
+        margin-bottom: 50px;
+        filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.2));
     }
 
     .floating-lang {
         position: absolute;
         font-weight: 700;
-        font-size: 1.6rem;
-        padding: 10px 20px;
-        border-radius: 25px;
-        background: rgba(15, 12, 41, 0.85);
-        backdrop-filter: blur(8px);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.5), inset 0 0 20px rgba(255,255,255,0.1);
+        font-size: 1.5rem;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: rgba(15, 12, 41, 0.8);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         color: white;
-        animation: float 6s ease-in-out infinite;
-        transition: all 0.3s ease;
-        cursor: default;
     }
 
-    .floating-lang:hover {
-        transform: scale(1.2) !important;
-        box-shadow: 0 15px 40px 0 rgba(31, 38, 135, 0.8);
-        z-index: 100;
-    }
-
-    /* Different float animations for variety */
-    .lang-en { top: 25%; left: 15%; color: #00d4ff; animation: float 4s ease-in-out infinite; }
-    .lang-es { top: 60%; left: 25%; color: #ff2fd0; animation: float 5s ease-in-out infinite 0.5s; }
-    .lang-fr { top: 30%; left: 45%; color: #7b2ff7; animation: float 6s ease-in-out infinite 1s; }
-    .lang-ar { top: 45%; left: 55%; color: #00ffcc; animation: float 4.5s ease-in-out infinite 1.5s; }
-    .lang-hi { top: 45%; left: 68%; color: #ffaa00; animation: float 5.5s ease-in-out infinite 0.2s; }
-    .lang-ja { top: 35%; left: 82%; color: #ff5555; animation: float 4s ease-in-out infinite 0.8s; }
-    .lang-sw { top: 65%; left: 52%; color: #aaff00; animation: float 5s ease-in-out infinite 1.2s; }
-    .lang-zh { top: 38%; left: 75%; color: #ff4444; animation: float 5.5s ease-in-out infinite 0.3s; }
-    .lang-de { top: 28%; left: 48%; color: #ffcc00; animation: float 4.5s ease-in-out infinite 0.7s; }
-    .lang-pt { top: 65%; left: 28%; color: #00ff88; animation: float 6s ease-in-out infinite 1.3s; }
+    /* Coordinates and animations for floating languages */
+    .lang-en { top: 25%; left: 15%; color: #00d4ff; animation: float 4s ease-in-out infinite; } /* North America */
+    .lang-es { top: 60%; left: 25%; color: #ff2fd0; animation: float 5s ease-in-out infinite 0.5s; } /* South America */
+    .lang-fr { top: 30%; left: 45%; color: #7b2ff7; animation: float 6s ease-in-out infinite 1s; } /* Europe */
+    .lang-ar { top: 45%; left: 55%; color: #00ffcc; animation: float 4.5s ease-in-out infinite 1.5s; } /* Middle East */
+    .lang-hi { top: 45%; left: 68%; color: #ffaa00; animation: float 5.5s ease-in-out infinite 0.2s; } /* India */
+    .lang-ja { top: 35%; left: 82%; color: #ff5555; animation: float 4s ease-in-out infinite 0.8s; } /* Japan */
+    .lang-sw { top: 65%; left: 52%; color: #aaff00; animation: float 5s ease-in-out infinite 1.2s; } /* Africa */
 
     @keyframes float {
-        0%, 100% { 
-            transform: translateY(0px) scale(1) rotate(0deg);
-            opacity: 0.95;
-        }
-        25% {
-            transform: translateY(-25px) scale(1.08) rotate(2deg);
-            opacity: 1;
-        }
-        50% { 
-            transform: translateY(-15px) scale(1.05) rotate(-1deg);
-            opacity: 0.98;
-        }
-        75% {
-            transform: translateY(-30px) scale(1.1) rotate(1deg);
-            opacity: 1;
-        }
+        0% { transform: translateY(0px) scale(1); }
+        50% { transform: translateY(-20px) scale(1.05); }
+        100% { transform: translateY(0px) scale(1); }
     }
 
-    /* ════════════════════════════════════════════════════════════
-       FEATURE CARDS WITH HOVER GLOW
-       ════════════════════════════════════════════════════════════ */
     .feature-card {
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(123, 47, 247, 0.3);
-        border-radius: 20px;
-        padding: 30px;
-        height: 100%;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        position: relative;
-        overflow: hidden;
-        animation: fadeInUp 1s ease-out backwards;
-    }
-
-    .feature-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(123, 47, 247, 0.1), transparent);
-        opacity: 0;
-        transition: opacity 0.4s ease;
-    }
-
-    .feature-card:hover::before {
-        opacity: 1;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-15px) scale(1.02);
-        background: rgba(255,255,255,0.08);
-        border-color: #00d4ff;
-        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3), 0 0 30px rgba(123, 47, 247, 0.4);
-    }
-
-    .feature-card:nth-child(1) { animation-delay: 0.2s; }
-    .feature-card:nth-child(2) { animation-delay: 0.4s; }
-    .feature-card:nth-child(3) { animation-delay: 0.6s; }
-
-    /* Icon bounce animation */
-    .feature-card h1 {
-        animation: iconBounce 2s ease-in-out infinite;
-        display: inline-block;
-    }
-
-    .feature-card:nth-child(1) h1 { animation-delay: 0s; }
-    .feature-card:nth-child(2) h1 { animation-delay: 0.3s; }
-    .feature-card:nth-child(3) h1 { animation-delay: 0.6s; }
-
-    @keyframes iconBounce {
-        0%, 100% { transform: translateY(0) rotate(0deg); }
-        25% { transform: translateY(-10px) rotate(-5deg); }
-        75% { transform: translateY(-5px) rotate(5deg); }
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       IMAGES WITH ZOOM EFFECT
-       ════════════════════════════════════════════════════════════ */
-    .image-container {
-        border-radius: 20px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        transition: all 0.4s ease;
-        animation: scaleIn 1s ease-out backwards;
-    }
-
-    .image-container:nth-child(1) { animation-delay: 0.3s; }
-    .image-container:nth-child(2) { animation-delay: 0.5s; }
-
-    .image-container:hover {
-        transform: scale(1.03);
-        box-shadow: 0 20px 50px rgba(123, 47, 247, 0.4);
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       CALL TO ACTION BUTTON WITH PULSE
-       ═══════════════════════════════════════════════════════════ */
-    .cta-button {
-        animation: buttonPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes buttonPulse {
-        0%, 100% { 
-            box-shadow: 0 4px 15px rgba(123, 47, 247, 0.4);
-        }
-        50% { 
-            box-shadow: 0 4px 25px rgba(0, 212, 255, 0.7), 0 0 30px rgba(123, 47, 247, 0.6);
-        }
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       SECTION HEADERS
-       ════════════════════════════════════════════════════════════ */
-    .section-header {
-        text-align: center;
-        margin-bottom: 40px;
-        animation: fadeInUp 1s ease-out;
-        position: relative;
-    }
-
-    .section-header::after {
-        content: '';
-        display: block;
-        width: 100px;
-        height: 4px;
-        background: linear-gradient(90deg, #00d4ff, #7b2ff7, #ff2fd0);
-        margin: 20px auto 0;
-        border-radius: 2px;
-        animation: expandLine 1.5s ease-out;
-    }
-
-    @keyframes expandLine {
-        from { width: 0; }
-        to { width: 100px; }
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       SCROLL INDICATOR
-       ════════════════════════════════════════════════════════════ */
-    .scroll-indicator {
-        text-align: center;
-        margin: 30px 0;
-        animation: bounce 2s infinite;
-        opacity: 0.7;
-    }
-
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-        40% { transform: translateY(-15px); }
-        60% { transform: translateY(-8px); }
-    }
-
-    /* ════════════════════════════════════════════════════════════
-       STATS COUNTER ANIMATION
-       ═══════════════════════════════════════════════════════════ */
-    .stats-container {
-        display: flex;
-        justify-content: center;
-        gap: 50px;
-        margin: 40px 0;
-        flex-wrap: wrap;
-    }
-
-    .stat-item {
-        text-align: center;
-        padding: 20px;
-        background: rgba(255,255,255,0.03);
         border-radius: 15px;
-        border: 1px solid rgba(123, 47, 247, 0.2);
-        min-width: 150px;
-        animation: fadeInUp 1s ease-out backwards;
+        padding: 25px;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.3s;
     }
-
-    .stat-item:nth-child(1) { animation-delay: 0.8s; }
-    .stat-item:nth-child(2) { animation-delay: 1s; }
-    .stat-item:nth-child(3) { animation-delay: 1.2s; }
-
-    .stat-number {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #00d4ff, #7b2ff7);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        display: block;
-    }
-
-    .stat-label {
-        color: #b0b0d0;
-        font-size: 1rem;
-        margin-top: 5px;
+    .feature-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255,255,255,0.06);
+        border-color: #00d4ff;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # 1. Main Hero Header with typing effect simulation
-    st.markdown("""
-    <div style="animation: fadeInUp 1.5s ease-out;">
-        <h1 class='app-title' style='font-size: 4.5rem !important; margin-top:20px;'>
-            🌐 Break Language Barriers
-        </h1>
-        <p class='subtitle' style='font-size: 1.3rem; max-width: 800px; margin: 20px auto;'>
-            The world is connected. Your files should be too. 
-            <span style="color: #00d4ff;">Translate entire documents</span>, 
-            <span style="color: #7b2ff7;">spreadsheets</span>, and 
-            <span style="color: #ff2fd0;">presentations</span> 
-            while keeping the exact same layout.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    # 1. Main Hero Header
+    st.markdown("<h1 class='app-title' style='font-size: 4.5rem !important; margin-top:20px;'>Break Language Barriers</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='subtitle'>The world is connected. Your files should be too. Translate entire documents, spreadsheets, and presentations while keeping the exact same layout.</p>", unsafe_allow_html=True)
 
-    # Big Call to Action Button with pulse animation
+    # Big Call to Action Button
     col_btn1, col_btn2, col_btn3 = st.columns([1.5, 1, 1.5])
     with col_btn2:
-        st.write("")
-        st.markdown("""
-        <style>
-        .stButton > button {
-            animation: buttonPulse 2s ease-in-out infinite !important;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        if st.button(" Open Translator", use_container_width=True, key="landing_cta"):
+        st.write("") # spacing
+        if st.button("🚀 Open Translator", use_container_width=True):
             st.session_state.app_started = True
             st.rerun()
-
-    # Scroll indicator
-    st.markdown("""
-    <div class="scroll-indicator">
-        <p style="color: #7b2ff7; font-size: 0.9rem;">↓ Scroll to explore ↓</p>
-    </div>
-    """, unsafe_allow_html=True)
 
     # 2. Interactive Animated World Map
     st.markdown("""
@@ -615,100 +247,53 @@ def show_landing_page():
         <div class="floating-lang lang-hi">नमस्ते 🪷</div>
         <div class="floating-lang lang-ja">こんにちは 🌸</div>
         <div class="floating-lang lang-sw">Jambo 🌍</div>
-        <div class="floating-lang lang-zh">你好 🐼</div>
-        <div class="floating-lang lang-de">Hallo 🍺</div>
-        <div class="floating-lang lang-pt">Olá ⚽</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Stats Section
-    st.markdown("""
-    <div class="stats-container">
-        <div class="stat-item">
-            <span class="stat-number">100+</span>
-            <span class="stat-label">Languages</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">15+</span>
-            <span class="stat-label">File Formats</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">100%</span>
-            <span class="stat-label">Format Preserved</span>
-        </div>
     </div>
     """, unsafe_allow_html=True)
 
     st.divider()
 
     # 3. Why Translation Matters
-    st.markdown("""
-    <h2 class="section-header" style="color: #fff; font-size: 2.5rem;">
-        ✨ The Power of Understanding
-    </h2>
-    """, unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align:center; margin-bottom: 30px; color: #fff;'>The Power of Understanding</h2>", unsafe_allow_html=True)
     
     col_feat1, col_feat2, col_feat3 = st.columns(3)
     
     with col_feat1:
         st.markdown("""
         <div class="feature-card">
-            <h1 style="font-size: 3.5rem; margin:0;">🌍</h1>
-            <h3 style="color:#00d4ff; margin: 15px 0;">Global Business</h3>
-            <p style="color:#b0b0d0; line-height: 1.6;">Seamlessly translate contracts, pitch decks, and financial spreadsheets. Expand your company's reach to international markets without breaking your document layouts.</p>
+            <h1 style="font-size: 3rem; margin:0;">🌍</h1>
+            <h3 style="color:#00d4ff;">Global Business</h3>
+            <p style="color:#b0b0d0;">Seamlessly translate contracts, pitch decks, and financial spreadsheets. Expand your company's reach to international markets without breaking your document layouts.</p>
         </div>
         """, unsafe_allow_html=True)
         
     with col_feat2:
         st.markdown("""
         <div class="feature-card">
-            <h1 style="font-size: 3.5rem; margin:0;">🤝</h1>
-            <h3 style="color:#ff2fd0; margin: 15px 0;">Deep Connections</h3>
-            <p style="color:#b0b0d0; line-height: 1.6;">Translate letters, subtitle files (SRT/VTT), and images. Share stories, movies, and culture with people around the world, making the planet feel a little bit smaller.</p>
+            <h1 style="font-size: 3rem; margin:0;">🤝</h1>
+            <h3 style="color:#ff2fd0;">Deep Connections</h3>
+            <p style="color:#b0b0d0;">Translate letters, subtitle files (SRT/VTT), and images. Share stories, movies, and culture with people around the world, making the planet feel a little bit smaller.</p>
         </div>
         """, unsafe_allow_html=True)
         
     with col_feat3:
         st.markdown("""
         <div class="feature-card">
-            <h1 style="font-size: 3.5rem; margin:0;">🎓</h1>
-            <h3 style="color:#7b2ff7; margin: 15px 0;">Limitless Learning</h3>
-            <p style="color:#b0b0d0; line-height: 1.6;">Access research papers, academic PDFs, and historical texts originally written in foreign languages. Turn any PDF into a readable, localized Word document instantly.</p>
+            <h1 style="font-size: 3rem; margin:0;">🎓</h1>
+            <h3 style="color:#7b2ff7;">Limitless Learning</h3>
+            <p style="color:#b0b0d0;">Access research papers, academic PDFs, and historical texts originally written in foreign languages. Turn any PDF into a readable, localized Word document instantly.</p>
         </div>
         """, unsafe_allow_html=True)
 
     st.write("<br><br>", unsafe_allow_html=True)
 
-    # 4. Images with enhanced containers
-    st.markdown("<h2 class='section-header' style='color: #fff; font-size: 2.5rem;'> Connected Worldwide</h2>", unsafe_allow_html=True)
-    
+    # 4. Images
     col_img1, col_img2 = st.columns(2)
     with col_img1:
-        st.markdown('<div class="image-container">', unsafe_allow_html=True)
-        st.image(
-            "https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
-            caption="Collaborate across borders.", 
-            use_container_width=True
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.image("https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="Collaborate across borders.", use_container_width=True)
     with col_img2:
-        st.markdown('<div class="image-container">', unsafe_allow_html=True)
-        st.image(
-            "https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", 
-            caption="A connected world.", 
-            use_container_width=True
-        )
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.image("https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", caption="A connected world.", use_container_width=True)
 
     st.write("<br><br>", unsafe_allow_html=True)
-
-    # Final CTA
-    st.markdown("""
-    <div style="text-align: center; padding: 40px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(123, 47, 247, 0.3); animation: fadeInUp 1s ease-out;">
-        <h3 style="color: #fff; font-size: 2rem; margin-bottom: 20px;">Ready to Break Barriers?</h3>
-        <p style="color: #b0b0d0; margin-bottom: 30px;">Join thousands of users translating documents every day</p>
-    </div>
-    """, unsafe_allow_html=True)
 
 
 def show_main_app():
@@ -725,7 +310,7 @@ def show_main_app():
 
     # ─── Sidebar Settings ──────────────────────────────────────────
     with st.sidebar:
-        if st.button("🏠 Back to Home Screen", use_container_width=True):
+        if st.button("🏠 Back to Home Screen"):
             st.session_state.app_started = False
             st.rerun()
             
@@ -794,7 +379,7 @@ def show_main_app():
             st.info(f"🔧 **Format**: {file_ext.upper()}")
 
         # ─── Translate Button ──────────────────────────────────────
-        if st.button(" Translate Now", type="primary", use_container_width=True):
+        if st.button("🚀 Translate Now", type="primary", use_container_width=True):
             engine_type = 'google' if 'Google' in engine_choice else 'mymemory'
 
             try:
@@ -891,7 +476,7 @@ def show_main_app():
                 custom_filename = str(Path(custom_filename).stem) + target_ext
 
             st.download_button(
-                label=f" Download File as: {custom_filename}",
+                label=f"📥 Download File as: {custom_filename}",
                 data=st.session_state.translated_bytes,
                 file_name=custom_filename,
                 mime="application/octet-stream",
